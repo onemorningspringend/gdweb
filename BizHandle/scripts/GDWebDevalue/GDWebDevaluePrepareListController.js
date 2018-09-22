@@ -21,6 +21,11 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareListController", "CardContr
         var jedecn = 2; //金额精度默认为2
         var sldecn = 0; //数量精度默认为
         var isjzzbjcz = ""; //减值准备忽略净残值
+<<<<<<< HEAD
+=======
+        //测试源代码管理
+        //测试代码是否提交到github
+>>>>>>> GDWebDevaluePrepareListController.js
         return {
             /**
              * 表单加载方法
