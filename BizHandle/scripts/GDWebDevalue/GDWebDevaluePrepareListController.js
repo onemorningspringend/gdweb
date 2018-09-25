@@ -21,7 +21,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareListController", "CardContr
         var jedecn = 2; //金额精度默认为2
         var sldecn = 0; //数量精度默认为
         var isjzzbjcz = ""; //减值准备忽略净残值
-        //测试是否可以同步到github
+
         return {
             /**
              * 表单加载方法
@@ -85,6 +85,18 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareListController", "CardContr
 
                     }
                 });
+            },
+            /**
+             * 取消减值
+             */
+            ReDevalue: function() {
+                var wzself = this;
+                var devaluedata = wzself.cardInstance().dataSource.peek();
+                for (var i = 0; i < devaluedata.rows.length; i++) {
+                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SJ = 0;
+                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SZ = 0;
+                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_JZZB = 0;
+                }
             },
             /**
              * 保存
