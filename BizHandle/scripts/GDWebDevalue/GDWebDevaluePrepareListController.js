@@ -225,31 +225,36 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareListController", "CardContr
                 return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDevalueData", params).then(
                     function(result) {
                         if (result) {
-                            //绑定资产信息
-                            var devalueds = {};
-                            devalueds['GDJZQD'] = result.data.GDJZQD;
-                            if (!wzself.cardInstance().schema && wzself.cardInstance().formID) {
-                                wzself.cardInstance().loadSchema(wzself.cardInstance().formID);
+                            //有的类别下没有资产会报错
+                            if (typeof(result.data.GDJZQD[0]) !== "undefined") {
+                                //绑定资产信息
+                                var devalueds = {};
+                                devalueds['GDJZQD'] = result.data.GDJZQD;
+                                if (!wzself.cardInstance().schema && wzself.cardInstance().formID) {
+                                    wzself.cardInstance().loadSchema(wzself.cardInstance().formID);
+                                }
+                                var datasource = wzself.cardInstance().dataSource = gsp.dataSource(devalueds, {
+                                    name: wzself.cardInstance().dataSourceName,
+                                    schema: wzself.cardInstance().schema,
+                                    primaryKey: 'GDJZQD_ID'
+
+                                });
+
+                                wzself.bindData(datasource);
+                                wzself.cardInstance().dataSource.tables(0).primaryKey = 'GDJZQD_ID';
+
+                                var shr = wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SHR;
+                                var ifsh = false;
+                                if (shr !== null && shr !== "" && shr !== " ") {
+                                    ifsh = true;
+                                }
+                                wzself.SetBtn(ifsh);
+
+                                wzself.SetDatagridColReadonly(ifsh);
+                            } else {
+                                wzself.cardInstance().dataSource.tables(0).clear();
+                                wzself.SetBtn(false);
                             }
-                            var datasource = wzself.cardInstance().dataSource = gsp.dataSource(devalueds, {
-                                name: wzself.cardInstance().dataSourceName,
-                                schema: wzself.cardInstance().schema,
-                                primaryKey: 'GDJZQD_ID'
-
-                            });
-
-                            wzself.bindData(datasource);
-                            wzself.cardInstance().dataSource.tables(0).primaryKey = 'GDJZQD_ID';
-
-                            var shr = wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SHR;
-                            var ifsh = false;
-                            if (shr !== null && shr !== "" && shr !== " ") {
-                                ifsh = true;
-                            }
-                            wzself.SetBtn(ifsh);
-
-                            wzself.SetDatagridColReadonly(ifsh);
-
                         }
                     }).fail(function(result) {
                     $.messager.alert('提示', "获取减值信息失败。", 'warning');
