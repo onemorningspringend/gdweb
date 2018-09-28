@@ -71,32 +71,44 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareListController", "CardContr
                     return $.Deferred().reject();
                 }
                 var devaluedata = wzself.cardInstance().dataSource.peek();
-                return wzself.ThreeButtonConfirm("提示", "将自动更新市值，是否继续？").then(function(result) {
-                    if (result === "1") {
-                        var params = [devaluedata, sortcode, true];
-                        return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "CalculateSZ", params).then(
-                            function(result) {
-                                if (result) {
-
-                                }
-                            }).fail(function(result) {
-                            $.messager.alert('提示', "无法计算市值！", 'warning');
-                        })
-                    } else {
-
-                    }
-                });
+                var devaluedatalen = wzself.cardInstance().dataSource.peek().GDJZQD.length;
+                if (devaluedata !== null && devaluedatalen > 0) {
+                    return wzself.blockConfirm("提示", "将自动更新市值，是否继续？").then(function(result) {
+                        if (result === "1") {
+                            var params = [devaluedata, sortcode, true, curCompanyCode, curDate];
+                            return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "CalculateSZ", params).then(
+                                function(result) {
+                                    if (result) {
+                                        var ServerData = result.data;
+                                        var devaluedata = wzself.cardInstance().dataSource.peek();
+                                        for (var i = 0; i < devaluedata.GDJZQD.length; i++) {
+                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_ID", ServerData.GDJZQD[i]["GDJZQD_ID"]);
+                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SZ", ServerData.GDJZQD[i]["GDJZQD_SZ"]);
+                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_YTJZ", ServerData.GDJZQD[i]["GDJZQD_YTJZ"]);
+                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_ZDR", ServerData.GDJZQD[i]["GDJZQD_ZDR"]);
+                                        }
+                                    }
+                                }).fail(function(result) {
+                                $.messager.alert('提示', "无法计算市值！", 'warning');
+                                return $.Deferred().reject();
+                            })
+                        } else {
+                            return $.Deferred().reject();
+                        }
+                    });
+                }
             },
             /**
              * 取消减值
              */
             ReDevalue: function() {
                 var wzself = this;
+                var sortcode = wzself.context.getParam('curSortCode');
                 var devaluedata = wzself.cardInstance().dataSource.peek();
-                for (var i = 0; i < devaluedata.rows.length; i++) {
-                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SJ = 0;
-                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SZ = 0;
-                    wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_JZZB = 0;
+                for (var i = 0; i < devaluedata.GDJZQD.length; i++) {
+                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SJ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_JZZB", 0);
                 }
             },
             /**
