@@ -40,8 +40,19 @@
     isEditUIReadOnly: '', //调拨卡片编辑状态时相关控件是否只读
     ControllerID_CompanySmartHelpforZCJZ: '#XSmartDictLookup_Hsdw', //资产减值的核算组织职能帮助
     ControllerID_ZCJZSmartHelpJZLB: '#XSmartDictLookup_Jzlb', //资产减值减值类别帮助
-    ControllerID_ZCJZDataGridJZMX: '#XDataGridDevalue', //减值准备数据列表
+    ControllerID_ZCJZSmartHelpJZZC: '#XSmartDictLookup_Jzzc', //资产减值减值资产帮助
 
+    //资产减值控件ID
+    DevalueCardSLID: 'XCalculatorSL',
+    DevalueCardYZID: 'XCalculatorYZ',
+    DevalueCardLJZJID: 'XCalculatorLJZJ',
+    DevalueCardJCZID: 'XCalculatorJCZ',
+    DevalueCardJZID: 'XCalculatorJZ',
+    DevalueCardSJID: 'XCalculatorSJ',
+    DevalueCardSZID: 'XCalculatorSZ',
+    DevalueCardYTJZID: 'XCalculatorYTJZ',
+    DevalueCardLJJZID: 'XCalculatorLJJZ',
+    DevalueCardJZZBID: 'XCalculatorJZZB',
 
     ReduceCardCreateID: 'edf4f58a-7f34-4a62-8775-45c6892fa19e',
     ReduceCardEditID: '693ca883-f732-4825-afcd-c224c52d6ef3',
