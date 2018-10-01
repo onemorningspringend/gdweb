@@ -159,12 +159,12 @@ gsp.module("gsp.app").controller("GDFsscDWXZController", "CardController", ['Biz
             parent.$('#BarPubBill').buttongroup('hideButton', '5d9a83be-aa53-4433-af6c-a26b0260dbbd');
             parent.$('#BarPubBill').buttongroup('hideButton', '05cf7259-b88b-4859-82ca-e8da98b2df81');
             //parent.$('#BarPubBill').buttongroup('hideButton', 'd4e85994-36c2-4f77-b889-702538c62d6b'); //上传影像
-            if (params.funcid === "GDWEB107") {
-                parent.$('#BarPubBill').buttongroup('hideButton', 'c8aff1d0-fac8-4df9-8699-1cd9f88dbf52'); //新增
-                parent.$('#BarPubBill').buttongroup('hideButton', '2b111168-62b9-425e-b4b7-4c6c0a26222e'); //编辑
-                parent.$('#BarPubBill').buttongroup('hideButton', 'd858c873-f520-42af-baab-b32ec75076f3'); //取消
-                parent.$('#BarPubBill').buttongroup('hideButton', '50939bcf-587e-4677-a9aa-100c6e5f1971'); //删除
-            }
+            // if (params.funcid === "GDWEB107") {
+            //     parent.$('#BarPubBill').buttongroup('hideButton', 'c8aff1d0-fac8-4df9-8699-1cd9f88dbf52'); //新增
+            //     parent.$('#BarPubBill').buttongroup('hideButton', '2b111168-62b9-425e-b4b7-4c6c0a26222e'); //编辑
+            //     parent.$('#BarPubBill').buttongroup('hideButton', 'd858c873-f520-42af-baab-b32ec75076f3'); //取消
+            //     parent.$('#BarPubBill').buttongroup('hideButton', '50939bcf-587e-4677-a9aa-100c6e5f1971'); //删除
+            // }
             parent.$("#BarPubBill").hide();
         },
         /**

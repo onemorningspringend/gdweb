@@ -2,19 +2,89 @@
 var self = this;
 //初始化全局方法类
 window["invoker"] = {};
+//新增操作
+window["invoker"].FSSC_add = function() {
+        return function() {
+            var gdself = $('[data-view="Form1"]').data('viewInstance');
+            return gdself.context.invoke([{
+                target: 'GDWebDevaluePrepareController',
+                methodName: 'DevalueCardCreate',
+                params: []
+            }]).then(function() {
+                gdself.context.view().transitInvoke('Create', [{
+                    target: '',
+                    methodName: '',
+                    params: []
+                }]);
+                return [true];
+                //return $.Deferred().resolve();
+            }, function() {
+                return [false];
+            });
+        }
+    }
+    ();
+//编辑操作
+window["invoker"].FSSC_edit = function() {
+        return function(fsmode) {
+            var gdself = $('[data-view="Form1"]').data('viewInstance');
+            return gdself.context.invoke([{
+                target: 'GDWebDevaluePrepareController',
+                methodName: 'DevalueCardEdit',
+                params: []
+            }]).then(function() {
+                gdself.context.view().transitInvoke('Modify', [{
+                    target: '',
+                    methodName: '',
+                    params: []
+                }]);
+                return [true];
+                //return $.Deferred().resolve();
+            }, function() {
+                return [false];
+            });
+        }
+    }
+    ();
+//取消操作
+window["invoker"].FSSC_cancel = function() {
+        return function() {
+            var gdself = $('[data-view="Form1"]').data('viewInstance');
+            return gdself.context.invoke([{
+                target: 'GDWebDevaluePrepareController',
+                methodName: 'DevalueCardCancel',
+                params: []
+            }]).then(function() {
+                gdself.context.view().transitInvoke('Cancel', [{
+                    target: '',
+                    methodName: '',
+                    params: []
+                }]);
+                gdself.context.view().transitInvoke('Cancel', [{
+                    target: '',
+                    methodName: '',
+                    params: []
+                }]);
+                return $.Deferred().resolve([true]);
+            }, function() {
+                return [false];
+            });
+        }
+    }
+    ();
 //保存操作
 window["invoker"].FSSC_save = function() {
         return function() {
             var gdself = $('[data-view="Form1"]').data('viewInstance');
             return gdself.context.invoke([{
-                target: 'GDWebDevaluePrepareListController',
-                methodName: 'AllocateCardSave',
+                target: 'GDWebDevaluePrepareController',
+                methodName: 'DevalueCardSave',
                 params: []
             }]).then(function(data) {
                 var params = [];
                 params[0] = true;
-                var cardInstanceinner = gdself.context.injector.get('$model')('DM_GDWeb_AssetAllocateWeb_CardInstance');
-                var controllerinner = gdself.context.controllers["GDWebAllocationCardController"];
+                var cardInstanceinner = gdself.context.injector.get('$model')('DM_GDWeb_DevaluePrepare_CardInstance');
+                var controllerinner = gdself.context.controllers["GDWebDevaluePrepareController"];
                 controllerinner.dataSourceHelper.dealForeignKeyValue(cardInstanceinner, controllerinner.defaultModel());
                 params[1] = controllerinner.defaultModel().dataModelID;
                 _.each(data, function(rows, tableName) {
@@ -31,32 +101,26 @@ window["invoker"].FSSC_save = function() {
         }
     }
     ();
-//保存后操作
-window["invoker"].FSSC_saveafter = function() {
+//删除操作
+window["invoker"].FSSC_delete = function() {
         return function() {
-            var def = $.Deferred();
-            var selfinner = $('[data-view="Form1"]').data('viewInstance');
-            return selfinner.context.invoke([{
-                target: 'GDWebDevaluePrepareListController',
-                methodName: 'AfterSave',
+            var gdself = $('[data-view="Form1"]').data('viewInstance');
+            return gdself.context.invoke([{
+                target: 'GDWebDevaluePrepareController',
+                methodName: 'DelDevalueforFssc',
                 params: []
             }]).then(function() {
-                selfinner.context.view().transitInvoke('Save', [{
-                    target: '',
-                    methodName: '',
-                    params: []
-                }]);
-                selfinner.context.view().transitInvoke('Save', [{
-                    target: '',
-                    methodName: '',
-                    params: []
-                }]);
+                var params = [];
+                var cardInstanceinner = gdself.context.injector.get('$model')('DM_GDWeb_DevaluePrepare_CardInstance');
+                var controllerinner = gdself.context.controllers["GDWebDevaluePrepareController"];
+                controllerinner.dataSourceHelper.dealForeignKeyValue(cardInstanceinner, controllerinner.defaultModel());
+                params[0] = true;
+                params[1] = controllerinner.defaultModel().dataModelID;
+                return params;
+            }, function() {
+                return [false];
             });
-
-            def.resolve(true);
-
-            return def.promise();
-        }
+        };
     }
     ();
 //提交操作
