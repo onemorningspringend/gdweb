@@ -81,6 +81,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         wzself.BindDevalueSortClear(); //减值类别帮助取消事件
                         wzself.BindDevalueAssetPicking(); //减值资产帮助前事件
                         wzself.BindDevalueAssetPicked(); //减值资产帮助后事件
+                        wzself.BindDevalueAssetClear(); //减值资产帮助取消事件
                         wzself.BindExitFunc();
                         if (param["OPTFLAG"] == "Edit" || param["OPTFLAG"] == "View") {
                             return wzself.loadData(param["dataId"]);
@@ -258,7 +259,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     loading = false;
                     return $.Deferred().reject(false);
                 }
-                return $.Deferred().resolve();
+                wzself.ReDevalue();
+                var sortcode = wzself.context.getParam('curSortCode');
+                var bindingdata = wzself.cardInstance().dataSource.peek();
+                return wzself.SavForDevalue(bindingdata, sortcode).then(function() {
+                    return $.Deferred().resolve();
+                })
             },
             /**
              * 保存方法
@@ -278,12 +284,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     if (iscansave == true) {
                         if (fsscflag === "1") {
                             if (param["OPTFLAG"] == "Create") {
-                                return wzself.SavForDevalue(bindingdata, bindingdatalen, sortcode);
+                                return wzself.SavForDevalue(bindingdata, sortcode);
                             } else {
-                                return wzself.SavForDevalue(bindingdata, bindingdatalen, sortcode);
+                                return wzself.SavForDevalue(bindingdata, sortcode);
                             }
                         }
-                        return wzself.SavForDevalue(bindingdata, bindingdatalen, sortcode).then(function() {
+                        return wzself.SavForDevalue(bindingdata, sortcode).then(function() {
                             $.loaded();
                             dsBackups = $.extend(true, {}, wzself.cardInstance().dataSource.tables(0).rows(0).peek());
                             $.notify.success("保存成功");
@@ -303,7 +309,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
             /**
              * 服务端保存减值方法
              */
-            SavForDevalue: function(bindingdata, bindingdatalen, sortcode) {
+            SavForDevalue: function(bindingdata, sortcode) {
                 var wzself = this;
                 var params = [bindingdata, sortcode, curCompanyCode, curDate];
                 return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "Save", params).then(
@@ -500,6 +506,13 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     wzself.context.setParam('curSortCode', devaluesort); //减值类别编号
                     var devaluesortfunc = dataRow[0].GDJZLB_SZGS;
                     wzself.context.setParam('curSortCodeFunc', devaluesortfunc); //减值类别公式
+                    if (wzself.cardInstance().dataSource !== null) {
+                        var devalueasset = wzself.cardInstance().dataSource.tables(0).rows(0).getValue("GDJZQD_ZCBH");
+                        if (devalueasset !== "" || devalueasset !== " ") {
+                            $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('clear'); //清空智能帮助
+                            wzself.SetDatasourceZero();
+                        }
+                    }
                 })
             },
             /**
@@ -509,7 +522,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 var wzself = this;
                 $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZLB).on('onClear', function() {
                     $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('clear'); //清空智能帮助
-
+                    wzself.SetDatasourceZero();
                 });
             },
             /**
@@ -549,6 +562,35 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     wzself.RefreshDevalueCard(sortcode, assetcode);
                 })
             },
+            /**
+             * 减值资产取消帮助事件
+             */
+            BindDevalueAssetClear: function() {
+                var wzself = this;
+                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).on('onClear', function() {
+                    wzself.SetDatasourceZero();
+                });
+            },
+            /**
+             * 清空数据源
+             */
+            SetDatasourceZero: function() {
+                var wzself = this;
+                if (wzself.cardInstance().dataSource !== null) {
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZCSL", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZCYZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_LJZJ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JCZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_SJ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_SZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_YTJZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZJJZ", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZZB", 0);
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_BZ", "");
+                }
+            },
+
             /**
              * 服务端获取减值准备数据
              */
