@@ -84,7 +84,13 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         wzself.BindDevalueAssetPicked(); //减值资产帮助后事件
                         wzself.BindDevalueAssetClear(); //减值资产帮助取消事件
                         wzself.BindExitFunc();
-                        //return wzself.loadData(param["dataId"]); //加载表单数据
+                        if (Operationfssc !== "Create") {
+                            var sortcode = param["SORTCODE"];
+                            var assetcode = param["ASSETCODE"];
+                            return wzself.RefreshDevalueCard(sortcode, assetcode).then(function() {
+                                if (Operationfssc == "View") { wzself.SetDev(true); }
+                            })
+                        }
                     }).then(function() {
                         wzself.ChangeState(param["OPTFLAG"]);
                     }).then(function() {
@@ -199,6 +205,9 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 $.loading();
                 loading = true;
                 isADD = "0";
+                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZLB).adplookupbox('readonly', false);
+                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('readonly', false);
+                wzself.SetDev(false);
                 if (wzself.cardInstance().dataSource.tables(0).rows(0)) {
                     var shr = wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SHR;
                     if (shr !== null && shr !== "" && shr !== " ") {
@@ -236,12 +245,17 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     });
                 } else {
                     return wzself.cancel().then(function() {
-                        return wzself.loadData(param["dataId"]).then(function() {
-                            if (wzself.cardInstance().dataSource.tables(0).rows(0)) {
+                        if (wzself.cardInstance().dataSource.tables(0).rows(0)) {
+                            dsBackups = $.extend(true, {}, wzself.cardInstance().dataSource.tables(0).rows(0).peek());
+                        } else {
+                            var sortcode = wzself.context.getParam('curSortCode');
+                            var assetcode = wzself.context.getParam('curAssetCode');
+                            return wzself.RefreshDevalueCard(sortcode, assetcode).then(function() {
                                 dsBackups = $.extend(true, {}, wzself.cardInstance().dataSource.tables(0).rows(0).peek());
-                            }
-                            return $.Deferred().resolve();
-                        })
+                            })
+                        }
+                        return $.Deferred().resolve();
+
                     }).then(function() {
                         isADD = "0";
                         loading = false;
@@ -321,10 +335,14 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         var assetcode = bindingdata.GDJZQD[0]["GDJZQD_ZCBH"];
                         //保存方法改了后台中的某些数据，需要重新绑定一下数据源才行
                         return wzself.RefreshDevalueCard(sortcode, assetcode).then(function() {
+                            //设置保存后界面状态
+                            $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZLB).adplookupbox('readonly', true);
+                            $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('readonly', true);
+                            wzself.SetDev(true);
                             var dsforsave = wzself.ConvertSaveData();
                             if (fsscflag === "1") {
                                 $.loaded();
-                                return $.Deferred().resolve(dsforsave);;
+                                return $.Deferred().resolve(dsforsave);
                             }
                         })
                     }
@@ -463,23 +481,22 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     //wzself.cardInstance().dataSource.tables(0).rows(0).setValue('GDJZQD_ZCBH',assetcode);
                     $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('setValue', assetcode);
                     $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('setText', assetname);
-                    wzself.RefreshDevalueCard(sortcode, assetcode);
-                    /*                    return wzself.RefreshDevalueCard(sortcode, assetcode).then(function() {
-                                           //我也不知道为什么，有时候绑定这些虚拟字段的控件就是不显示值
-                                           var dt = wzself.cardInstance().dataSource.peek().GDJZQD[0];
-                                           $('#XCalculatorSL').numberbox('setValue', dt["GDJZQD_ZCSL"]); //数量
-                                           $('#XCalculatorYZ').numberbox('setValue', dt["GDJZQD_ZCYZ"]); //原值
-                                           $('#XCalculatorLJZJ').numberbox('setValue', dt["GDJZQD_LJZJ"]); //累计折旧
-                                           $('#XCalculatorJCZ').numberbox('setValue', dt["GDJZQD_JCZ"]); //净残值
-                                           $('#XCalculatorYTJZ').numberbox('setValue', dt["GDJZQD_YTJZ"]); //应提减值
-                                           $('#XCalculatorLJJZ').numberbox('setValue', dt["GDJZQD_LJJZ"]); //已提减值
-                                       }) */
                 }
             },
             /**
              * 设置按钮是否可用,设置控件是否只读
              */
-            SetBtnAndDev: function(ifsh) {
+            SetDev: function(ifreadonly) {
+                //设置控件是否只读
+                $('#XCalculatorSJ').numberbox('textbox').attr('readOnly', ifreadonly); //市价
+                $('#XCalculatorSZ').numberbox('textbox').attr('readOnly', ifreadonly); //市值
+                $('#XCalculatorJZZB').numberbox('textbox').attr('readOnly', ifreadonly); //实体减值
+                $('#XTextBoxBZ').attr('readonly', ifreadonly); //备注
+            },
+            /**
+             * 设置按钮是否可用,设置控件是否只读
+             */
+            SetBtn: function(ifsh) {
                 var wzself = this;
                 if (ifsh == true) {
                     //设置按钮和相关控件样式
@@ -487,18 +504,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     $('#Label1').show(); //已审核标签
                     $("#Label1").css({ 'color': 'red' }); //设置已审核标签这三个字为红色
                     //设置控件是否只读
-                    $('#XCalculatorSJ').numberbox('textbox').attr('readOnly', true); //市价
-                    $('#XCalculatorSZ').numberbox('textbox').attr('readOnly', true); //市值
-                    $('#XCalculatorJZZB').numberbox('textbox').attr('readOnly', true); //实体减值
-                    $('#XTextBoxBZ').attr('readonly', true); //备注
+                    wzself.SetDev(ifsh);
                 } else {
                     $('#XCheckBox1').attr('enable', true); //是否置零复选框
                     $('#Label1').hide(); //已审核标签
-
-                    $('#XCalculatorSJ').numberbox('textbox').attr('readOnly', false); //市价
-                    $('#XCalculatorSZ').numberbox('textbox').attr('readOnly', false); //市值
-                    $('#XCalculatorJZZB').numberbox('textbox').attr('readOnly', false); //实提减值
-                    $('#XTextBoxBZ').attr('readonly', false); //备注
+                    //未审核的设置控件可读写
+                    wzself.SetDev(ifsh);
                 }
             },
             /**
@@ -566,10 +577,8 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                             $(this).data('adplookupbox').isOpen = false;
                         }, 100);
                     } else {
-                        var assetcodestr = "";
                         return wzself.GetDevalueAsset(sortcode).then(function(assetcodestr) {
                             if (assetcodestr) {
-                                assetcodestr = assetcodestr;
                                 var jzzc = $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('options').adp;
                                 var condition = "[" + wzself.ArrangeCondition(" ", "GDZCZY_DWBH", " = ", "'" + curCompanyCode + "' and GDZCZY_ZCBH in('" + assetcodestr + "')", "Express", " ", " ") + "]";
                                 jzzc.condition = condition;
@@ -677,18 +686,15 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                 if (shr !== null && shr !== "" && shr !== " ") {
                                     ifsh = true;
                                 }
-                                wzself.SetBtnAndDev(ifsh);
+                                wzself.SetBtn(ifsh);
                             } else {
                                 if (wzself.cardInstance().dataSource !== null) {
                                     wzself.cardInstance().dataSource.tables(0).clear();
                                 }
-                                wzself.SetBtnAndDev(false);
+                                wzself.SetBtn(false);
                             }
                         }
-                    }).fail(function(result) {
-                    $.messager.alert('提示', "获取减值信息失败。", 'warning');
-                    return;
-                });
+                    })
             },
             /**
              * 设置减值卡片相关项目精度
