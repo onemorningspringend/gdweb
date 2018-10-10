@@ -70,9 +70,11 @@ gsp.module("gsp.app").controller("GDFsscDWXZController", "CardController", ['Biz
             }).then(function() {
                 loading = false;
                 $.loaded();
+                window.parent.$.loaded();
             }).fail(function() {
                 loading = false;
                 $.loaded();
+                window.parent.$.loaded();
             });
         },
         OK: function() {
