@@ -1,6 +1,6 @@
 //资产卡片界面
 gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
-    function () {
+    function() {
 
         //#region 参数
         var cardSelf;
@@ -24,7 +24,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
         var changeType = ''; //切换类别编号
         var parentFuncID = ''; //父窗体功能ID
         var cancelFlag = '0'; //取消编辑标志
-        var editFlag = '0';//编辑标志，解决共享中心编辑问题
+        var editFlag = '0'; //编辑标志，解决共享中心编辑问题
         //单位参数
         var isJtzj = '0'; // 是否计提折旧
         var isCswc = '0'; // 是否初始完成
@@ -72,7 +72,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
         var Operationfssc = "";
         var fsscflag = "";
         var firstopen = "";
-        var firstcancel = "1";//给共享中心使用的取消标志，第一次打开的单据不可取消
+        var firstcancel = "1"; //给共享中心使用的取消标志，第一次打开的单据不可取消
 
         //资产类别--折旧方法--月折旧额/率--年折旧额/率--累计折旧--月折旧额/率--年折旧额/率
         //入账日期--已提月份--入账折旧--累计折旧--月折旧额/率--年折旧额/率
@@ -91,7 +91,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
         return {
             //#region 界面加载
             //共享中心调用分支
-            CardFormload: function () {
+            CardFormload: function() {
                 var cardSelf = this;
                 var DWXZDialog = $('#IFrameDWXZDialog');
                 var param = parseUrlParams(window.location); //从URL解析出的参数
@@ -104,8 +104,8 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             modal: true,
                             width: 350,
                             height: 185,
-                            onOpen: function () { },
-                            onClose: function () {
+                            onOpen: function() {},
+                            onClose: function() {
                                 curCompanyCode = gsp.application.applicationContext.getParam('CURCOMPANYCODE');
                                 curCompanyName = gsp.application.applicationContext.getParam("CURCOMPANYNAME");
                                 curDate = gsp.application.applicationContext.getParam('CURDATE');
@@ -121,12 +121,12 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
             },
             //#region 界面加载
             //空方法 专用于其他界面调用
-            EmptyFormload: function () { },
+            EmptyFormload: function() {},
             //界面加载（表单加载后） 单位编号 年度 期间 日期 动作标识 (资产ID 资产编号 以ID查询还是以编号查询) (复制的资产ID 是否复制附属设备 是否复制附件)
-            CardFormloadNormal: function () {
+            CardFormloadNormal: function() {
                 cardSelf = this;
                 //获取上个界面传递的参数
-                return function () {
+                return function() {
                     if (fsscflag === "1" && firstopen !== '0') {
                         var params = parseUrlParams(window.location);
                         if (params.psAssetID)
@@ -176,7 +176,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                         }
                         return $.Deferred().resolve();
                     }
-                }().then(function () {
+                }().then(function() {
                     //debugger;
                     if (fsscflag === "1" && firstopen !== "0") {
                         location = '/cwbase/web/FI/GD/BizHandle/runtime/GDWebAssetCard/d560189e-4ef2-407b-97a8-69a4071cdbec/Index.html?psCompany=' + curCompanyCode + '&psCompanyName=' + curCompanyName + '&psYear=' + curYear + '&psPeriod=' + curPeriod + '&psDate=' + curDate + '&psFlag=' + Operationfssc + '&psAssetID=' + assetID + '&psInitAsset=0&psByIDorCode=ID&psCopyAssetID=&psCopyFssbFlag=N&psCopyFjFlag=N&psChangeTypeFlag=0&FSSCFLAG=1&FIRSTOPEN=0&psEditFlag=1';
@@ -205,15 +205,15 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             },
             //加载新增 重写
-            MyCreate: function () {
+            MyCreate: function() {
                 var cardself = this;
-                return cardSelf.create().then(function () {
+                return cardSelf.create().then(function() {
                     //数据加载
                     return cardSelf.CardUniteLoad();
                 });
             },
             //统一加载
-            CardUniteLoad: function () {
+            CardUniteLoad: function() {
                 if (changeTypeFlag == '1')
                     cardType = changeType;
                 else
@@ -224,7 +224,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 cardSelf.SetBtn_DisPlay('init');
 
                 //服务端：获取公司参数 单位项目 类别信息 资产数据
-                cardSelf.CardLoadData('ASSETCARD').then(function () {
+                cardSelf.CardLoadData('ASSETCARD').then(function() {
                     //debugger;
                     //将资产数据赋给界面
                     cardSelf.SetBindingData();
@@ -258,7 +258,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             if (isJoinZcgl == "1" && (formFlag == "E" || formFlag == "C") && sbbh != '') {
                                 $("#ButtonGDZCZY_ZCBH").attr('disabled', 'disabled'); //资产编号按钮只读
                             } else {
-                                $("#ButtonGDZCZY_ZCBH").off("click").on("click", function () {
+                                $("#ButtonGDZCZY_ZCBH").off("click").on("click", function() {
                                     cardSelf.GetNewAssetCode(false); //资产编号按钮 注册事件
                                 });
                             }
@@ -299,11 +299,11 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                         //debugger;
                         //重新注册刷新和关闭事件
                         //var vid = this.context.view().element.id;
-                        $(document).off('framerefresh').on('framerefresh', function () {
+                        $(document).off('framerefresh').on('framerefresh', function() {
                             //debugger;
                             return cardSelf.refreshForm();
                         });
-                        $(document).off('frameclose').on('frameclose', function () {
+                        $(document).off('frameclose').on('frameclose', function() {
                             //debugger;
                             return cardSelf.closeForm();
                         });
@@ -317,16 +317,17 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                         }
                     }
                 });
+                window.parent.$.loaded();
             },
             //获取公司参数 单位项目 类别信息 资产信息 折旧信息
-            CardLoadData: function (paramFlag) {
+            CardLoadData: function(paramFlag) {
                 var dicParams = {};
                 //获取cookie
                 var cookieData = cardSelf.CutoutData('ZCKP=', ';', document.cookie);
                 var param = [curCompanyCode, curYear, curPeriod, curDate, paramFlag, cardType, formFlag, isInitAsset, "", dicParams, assetID, assetCode, byIDorCode, changeTypeFlag, cookieData];
                 if (formFlag == 'F')
                     param = [curCompanyCode, curYear, curPeriod, curDate, paramFlag, cardType, formFlag, isInitAsset, "", dicParams, copyAssetID, "", byIDorCode, changeTypeFlag, cookieData];
-                return this.context.injector.get('$dataServiceProxy').invokeMethod('Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement', 'GetCardLoadData', param).then(function (result) {
+                return this.context.injector.get('$dataServiceProxy').invokeMethod('Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement', 'GetCardLoadData', param).then(function(result) {
                     if (result) {
                         var resultDs = JSON.parse(result.data);
                         companyItemDt = resultDs.GDDWXM; //单位项目数据集
@@ -388,49 +389,49 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             cardDeprecDr.ZJLZQ = '';
                         }
                     }
-                }).fail(function (result) {
+                }).fail(function(result) {
                     $.messager.alert('提示', '获取单位信息失败。', 'warning');
                     return;
                 });
             },
             //获取公司参数
-            GetCompanyParams: function (companyCode, year, date) {
+            GetCompanyParams: function(companyCode, year, date) {
                 var param = [companyCode, year, date, "ASSETLIST"];
-                return this.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDwParams", param).then(function (result) {
-                    if (result) {
-                        var dicParams = result.data; //单位信息
-                        if (dicParams.GD_KJQJ)
-                            curPeriod = dicParams.GD_KJQJ;
-                        if (dicParams.GD_SFJTZJ)
-                            isJtzj = dicParams.GD_SFJTZJ;
-                        if (dicParams.GD_SFCSWC)
-                            isCswc = dicParams.GD_SFCSWC;
-                        if (dicParams.GD_JEDECN)
-                            iiJeDecn = parseInt(dicParams.GD_JEDECN, 10);
-                        if (dicParams.GD_SLDECN)
-                            iiSlDecn = parseInt(dicParams.GD_SLDECN, 10);
-                        if (dicParams.JionGDZCFlag)
-                            isJoinZcgl = dicParams.JionGDZCFlag;
-                        if (dicParams.SYS_SecretEdition)
-                            isSecret = dicParams.SYS_SecretEdition;
-                        if (dicParams.GD_ZDRSC)
-                            isZdrDel = dicParams.GD_ZDRSC;
-                        if (dicParams.DW_GSLB)
-                            curCompanyType = dicParams.DW_GSLB;
-                        if (dicParams.GD_SFNJWC)
-                            isNjwc = dicParams.GD_SFNJWC;
-                        if (dicParams.GD_Authority)
-                            authorityCondi = dicParams.GD_Authority;
-                    }
-                })
-                    .fail(function (result) {
+                return this.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDwParams", param).then(function(result) {
+                        if (result) {
+                            var dicParams = result.data; //单位信息
+                            if (dicParams.GD_KJQJ)
+                                curPeriod = dicParams.GD_KJQJ;
+                            if (dicParams.GD_SFJTZJ)
+                                isJtzj = dicParams.GD_SFJTZJ;
+                            if (dicParams.GD_SFCSWC)
+                                isCswc = dicParams.GD_SFCSWC;
+                            if (dicParams.GD_JEDECN)
+                                iiJeDecn = parseInt(dicParams.GD_JEDECN, 10);
+                            if (dicParams.GD_SLDECN)
+                                iiSlDecn = parseInt(dicParams.GD_SLDECN, 10);
+                            if (dicParams.JionGDZCFlag)
+                                isJoinZcgl = dicParams.JionGDZCFlag;
+                            if (dicParams.SYS_SecretEdition)
+                                isSecret = dicParams.SYS_SecretEdition;
+                            if (dicParams.GD_ZDRSC)
+                                isZdrDel = dicParams.GD_ZDRSC;
+                            if (dicParams.DW_GSLB)
+                                curCompanyType = dicParams.DW_GSLB;
+                            if (dicParams.GD_SFNJWC)
+                                isNjwc = dicParams.GD_SFNJWC;
+                            if (dicParams.GD_Authority)
+                                authorityCondi = dicParams.GD_Authority;
+                        }
+                    })
+                    .fail(function(result) {
                         //debugger;
                         //$.messager.alert('提示', "获取单位信息失败。", 'warning');
                         return;
                     });
             },
             //将资产数据赋给绑定数据
-            SetBindingData: function () {
+            SetBindingData: function() {
                 var cardBindingDr = cardBindingDt[0];
                 cardType = cardBindingDr.GDZCZY_LBBH;
                 //给界面数据赋值
@@ -455,17 +456,17 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //项目控件设置：注册事件 绑定帮助
-            AssetItemControlSetting: function () {
+            AssetItemControlSetting: function() {
                 //数值控件 焦点丢失事件
-                $('.easyui-numberbox').each(function () {
+                $('.easyui-numberbox').each(function() {
                     var id = $(this).attr('id');
-                    $(this).numberbox('textbox').on('blur', function () {
+                    $(this).numberbox('textbox').on('blur', function() {
                         //console.log(id);
                         cardSelf.NumberBoxBlur(id.substring(11), $(this).val());
                     });
                 });
                 //日期控件 值变化事件
-                $('.easyui-my97datebox').on('change', function () {
+                $('.easyui-my97datebox').on('change', function() {
                     var id = $(this).attr('id');
                     cardSelf.my97dateboxchanged(id.substring(7), $(this).val());
                 });
@@ -512,7 +513,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
                             //日期框值变化事件 !绑定日期数据修改不会触发这个事件#warning
                             var opts = $("#Datebox" + itemCode).my97datebox('options');
-                            opts.dchanged = function (dp) {
+                            opts.dchanged = function(dp) {
                                 var controlItemCode = dp.el.id.substring(7); //例如DateboxGDZCZY_RZRQ去掉前缀
                                 //console.log(controlItemCode + '日期框值变化');
                                 var newValue = dp.cal.getNewDateStr(opts.realDateFmt);
@@ -526,7 +527,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
                             if (helpItemDz != '1' && helpItemCz != '1') { //文本框
                                 //文本框丢失焦点事件
-                                $("#XTextBox" + itemCode).text('textbox').on('blur', function (e) {
+                                $("#XTextBox" + itemCode).text('textbox').on('blur', function(e) {
                                     //console.log(e.target.id.substring(8));
                                     cardSelf.TextBoxBlur(e.target.id.substring(8));
                                 });
@@ -535,14 +536,14 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                                 var helpControl = $("#XSmart" + itemCode).adplookupbox('options').adp;
 
                                 //设置帮助前事件
-                                helpControl.OnDictEntryPicking = function (adp) {
+                                helpControl.OnDictEntryPicking = function(adp) {
                                     var controlItemCode = this.id.substring(6);
                                     //debugger;
                                     cardSelf.SmarthelpOnDictEntryPicking(controlItemCode, adp);
                                 };
 
                                 //设置帮助后事件
-                                helpControl.OnDictEntryPicked = function (rowData, opts) {
+                                helpControl.OnDictEntryPicked = function(rowData, opts) {
                                     //debugger;
                                     var controlItemCode = opts.adp.OnDictEntryPicked.caller.arguments[1].id.substring(6); //例如XSmartGDZCZY_LBBH去掉前缀
                                     cardSelf.SmarthelpOnDictEntryPicked(controlItemCode, rowData[0]);
@@ -598,7 +599,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //设置按钮显示
-            SetBtn_DisPlay: function (stateFlag) {
+            SetBtn_DisPlay: function(stateFlag) {
                 if (stateFlag == 'init') { //初始加载
                     if (formFlag == "Q") {
                         //新增按钮不可见
@@ -651,7 +652,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                         //编辑按钮不可用
                         $('#presetBar').buttongroup('disable', '9e5fe46a-d77f-45e0-9f5d-ba3e2cf7251d');
                         if (fsscflag === "1") {
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 parent.$('#BarPubBill').buttongroup('disable', '50939bcf-587e-4677-a9aa-100c6e5f1971');
                                 parent.$('#BarPubBill').buttongroup('disable', '2b111168-62b9-425e-b4b7-4c6c0a26222e');
                             });
@@ -672,7 +673,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 新增
             //新增
-            AddCard: function () {
+            AddCard: function() {
                 // if (gsp.rtf.query.get("funcid") == '')
                 //     gsp.rtf.query.get('funcid') = curFuncID;
                 //刷新
@@ -691,7 +692,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 编辑
             //编辑
-            EditCard: function () {
+            EditCard: function() {
                 formFlag = 'E';
                 assetID = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ID');
                 assetCode = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCBH');
@@ -717,7 +718,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 取消
             //取消
-            CancelCard: function () {
+            CancelCard: function() {
                 if (formFlag == 'A') {
                     //清空
                     // if (fsscflag === "1") {
@@ -754,7 +755,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 获取编号
             //获取最新编号:项目空值直接停止
-            GetNewAssetCode: function (itemEmptyStop) {
+            GetNewAssetCode: function(itemEmptyStop) {
                 if (isAssetCodeAuto == '0')
                     return;
                 else {
@@ -765,7 +766,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     //debugger;
                     var param = [curCompanyCode, curYear, isAssetCodeAuto, itemEmptyStop, assetDataStr, resultMsg];
                     this.context.injector.get('$dataServiceProxy').invokeMethod('Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement', 'GetNewAssetCode', param).then(
-                        function (result) {
+                        function(result) {
                             if (result) {
                                 var newCode = result.data;
                                 var resultMsg = result.outParams;
@@ -774,7 +775,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                                         cardSelf.cardInstance().dataSource.tables('GDZCZY').defaultView().currentItem.row().setValue('GDZCZY_ZCBH', newCode); //不用替换成UpdateBindData
                                 } else if (resultMsg.indexOf('生成编号所属项目') >= 0) {
                                     cardSelf.blockConfirm('提示', resultMsg + '是否继续？')
-                                        .then(function () { //点是
+                                        .then(function() { //点是
                                             cardSelf.cardInstance().dataSource.tables('GDZCZY').defaultView().currentItem.row().setValue('GDZCZY_ZCBH', newCode); //不用替换成UpdateBindData
                                         });
                                 }
@@ -786,7 +787,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 保存卡片
             //保存卡片
-            MainSave: function () {
+            MainSave: function() {
                 //查看 退出
                 if (formFlag == 'Q')
                     return $.Deferred().reject();
@@ -818,7 +819,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 } else if ((zcbh == '' || $.trim(zcbh) == '') && mulSaveCount == 0 && isAssetCodeAuto != '0') { //保存一份 且 自动生成编号 且 编号空
                     //调用服务端
                     //资产编号为空 并且 自动生成编号
-                    cardSelf.GetNewAssetCode(false).then(function () {
+                    cardSelf.GetNewAssetCode(false).then(function() {
                         zcbh = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCBH');
                         if (zcbh == '' || $.trim(zcbh) == '')
                             return $.Deferred().reject();
@@ -834,7 +835,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //保存后事件
-            AfterSave: function (result, ifReFreshClose) {
+            AfterSave: function(result, ifReFreshClose) {
                 if (result) {
                     var resultStr = result.data;
                     var newAssetID = cardSelf.CutoutData('ZCID:', ';', resultStr);
@@ -893,25 +894,25 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return $.Deferred().resolve();
             },
             //服务端保存卡片
-            SaveCard: function (ifReFreshClose) {
+            SaveCard: function(ifReFreshClose) {
                 var cardSelf = this;
                 var tmpAssetDs = cardSelf.cardInstance().dataSource.peek();
                 var assetDataStr = JSON.stringify(tmpAssetDs);
                 var param = [curCompanyCode, curYear, curPeriod, gsp.rtf.context.get('UserName'), assetDataStr, formFlag, isInitAsset, copyAssetID, copyFssbFlag, copyFjFlag, mulSaveCount, mulSaveCodeRage, mulSaveFixCode, mulSaveStartRunCode, mulSaveCodeLen];
                 ////debugger;
                 $.loading();
-                return this.context.injector.get('$dataServiceProxy').invokeMethod('Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement', 'SaveAssetCard', param).then(function (result) {
+                return this.context.injector.get('$dataServiceProxy').invokeMethod('Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement', 'SaveAssetCard', param).then(function(result) {
                     if (result) {
                         return cardSelf.AfterSave(result, ifReFreshClose);
                     }
-                }).fail(function (result) {
+                }).fail(function(result) {
                     $.loaded();
                     //$.messager.alert('提示', '保存失败。', 'warning');
                     //return false;
                 });
             },
             //共享中心模式保存方法
-            SaveCardforFSSC: function () {
+            SaveCardforFSSC: function() {
                 var cardSelf = this;
                 $.loading();
                 var tmpAssetDs = cardSelf.cardInstance().dataSource.peek();
@@ -940,7 +941,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return $.Deferred().resolve(fsscdata);
             },
             //保存前检查
-            CheckCardData: function () {
+            CheckCardData: function() {
                 //判断单位使用项目中是否勾选启用日期项目
                 if (cardSelf.CheckFieldExists('GDZCZY_QYRQ') == false) {
                     $.notify.error("单位项目缺少启用日期项目，请打开【单位使用项目】功能保存后再增加资产。");
@@ -1190,7 +1191,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return true;
             },
             //记录卡片数据
-            ReportCardData: function () {
+            ReportCardData: function() {
                 var mainRow = cardSelf.cardInstance().dataSource.tables('GDZCZY').peek()[0];
                 for (var field in mainRow) {
                     preCardDr[field] = mainRow[field];
@@ -1198,7 +1199,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //检查是否修改
-            CheckHaveChanged: function () {
+            CheckHaveChanged: function() {
                 var mainRow = cardSelf.cardInstance().dataSource.tables('GDZCZY').peek()[0];
                 for (var field in mainRow) {
                     if (preCardDr[field] != mainRow[field])
@@ -1207,7 +1208,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return false;
             },
             //字段是否存在
-            CheckFieldExists: function (fieldName) {
+            CheckFieldExists: function(fieldName) {
                 if (cardSelf.cardInstance().dataSource.tables('GDZCZY').peek()[0][fieldName] == undefined)
                     return false;
                 else
@@ -1216,7 +1217,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
             //#endregion
 
             //#region 刷新和关闭
-            refreshForm: function () {
+            refreshForm: function() {
                 var haveChange = false;
                 if (formFlag == 'Q') {
                     return gsp.rtf.func.refreshFunc(curFuncID);
@@ -1228,7 +1229,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     return gsp.rtf.func.refreshFunc(curFuncID);
                 }
                 if (haveChange == true) {
-                    cardSelf.ThreeButtonConfirm('提示', '数据已修改，是否保存？').then(function (result) {
+                    cardSelf.ThreeButtonConfirm('提示', '数据已修改，是否保存？').then(function(result) {
                         //debugger;
                         if (result == '1') {
                             //检查数据
@@ -1246,7 +1247,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             } else if ((zcbh == '' || $.trim(zcbh) == '') && mulSaveCount == 0 && isAssetCodeAuto != '0') { //保存一份 且 自动生成编号 且 编号空
                                 //调用服务端
                                 //资产编号为空 并且 自动生成编号
-                                cardSelf.GetNewAssetCode(false).then(function () {
+                                cardSelf.GetNewAssetCode(false).then(function() {
                                     zcbh = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCBH');
                                     if (zcbh == '' || $.trim(zcbh) == '')
                                         return false;
@@ -1266,7 +1267,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     return gsp.rtf.func.refreshFunc(curFuncID);
                 }
             },
-            closeForm: function () {
+            closeForm: function() {
                 if (needClose == true)
                     return true;
                 var haveChange = false;
@@ -1282,7 +1283,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     return gsp.rtf.func.close(curFuncID);
                 }
                 if (haveChange == true) {
-                    cardSelf.ThreeButtonConfirm('提示', '数据已修改，是否保存？').then(function (result) {
+                    cardSelf.ThreeButtonConfirm('提示', '数据已修改，是否保存？').then(function(result) {
                         //debugger;
                         if (result == '1') {
                             //检查数据
@@ -1300,7 +1301,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             } else if ((zcbh == '' || $.trim(zcbh) == '') && mulSaveCount == 0 && isAssetCodeAuto != '0') { //保存一份 且 自动生成编号 且 编号空
                                 //调用服务端
                                 //资产编号为空 并且 自动生成编号
-                                cardSelf.GetNewAssetCode(false).then(function () {
+                                cardSelf.GetNewAssetCode(false).then(function() {
                                     zcbh = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCBH');
                                     if (zcbh == '' || $.trim(zcbh) == '')
                                         return false;
@@ -1323,7 +1324,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //三个按钮的选择框 “1”为是，“0”为否
-            ThreeButtonConfirm: function (title, message) {
+            ThreeButtonConfirm: function(title, message) {
                 var wvself = this;
                 var defer = $.Deferred(),
                     t = title ? title : ctrlLang.delConfirmT,
@@ -1332,7 +1333,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 //解决confirm框右上角关闭按钮的点击事件，捕获到是defer的结果
                 $.fn.window.defaults.closable = false;
 
-                wvself.Threeconfirm(t, m, function (r) {
+                wvself.Threeconfirm(t, m, function(r) {
                     if (r === "1") {
                         defer.resolve("1");
                     } else if (r === "0") {
@@ -1347,19 +1348,19 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return defer;
             },
             //形成弹窗的方法
-            Threeconfirm: function (title, msg, fn) {
+            Threeconfirm: function(title, msg, fn) {
                 var content = '<div class="messager-icon messager-question"></div>' +
                     '<div>' + msg + '</div>' +
                     '<div style="clear:both;"/>';
                 var buttons = {};
-                buttons["是"] = function () {
+                buttons["是"] = function() {
                     win.window('close');
                     if (fn) {
                         fn("1");
                         return false;
                     }
                 };
-                buttons["否"] = function () {
+                buttons["否"] = function() {
                     win.window('close');
                     if (fn) {
                         fn("0");
@@ -1367,7 +1368,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     }
                 };
 
-                buttons[$.messager.defaults.cancel] = function () {
+                buttons[$.messager.defaults.cancel] = function() {
                     win.window('close');
                     if (fn) {
                         fn("Cancel");
@@ -1396,8 +1397,8 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     minimizable: false,
                     maximizable: false,
                     resizable: false,
-                    onClose: function () {
-                        setTimeout(function () {
+                    onClose: function() {
+                        setTimeout(function() {
                             win.window('destroy');
                         }, 100);
                     }
@@ -1414,7 +1415,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                         }
                     }
                 }
-                win.on('keyup', function (e) {
+                win.on('keyup', function(e) {
                     if (e.which == 32 || e.which == 13) {
                         win.window('close');
                         if (fn) {
@@ -1430,7 +1431,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                             return false;
                         }
                     }
-                }).on('click', function () {
+                }).on('click', function() {
                     win.children('div.messager-button').children('a:first').focus();
                 });
             },
@@ -1440,12 +1441,12 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 控件事件
             //数据变化操作
-            UpdateBindData: function (field, value) {
+            UpdateBindData: function(field, value) {
                 cardSelf.cardInstance().dataSource.tables('GDZCZY').defaultView().currentItem.row().setValue(field, value);
                 changeCardDr[field] = value;
             },
             //数值框丢失焦点事件
-            NumberBoxBlur: function (controlItemCode) {
+            NumberBoxBlur: function(controlItemCode) {
                 //值无变化 直接返回
                 var oldValue = Number(cardSelf.toDecimal(changeCardDr[controlItemCode], itemDecnDict[controlItemCode]));
                 var newValue = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue(controlItemCode), itemDecnDict[controlItemCode]));
@@ -1581,7 +1582,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 cardSelf.CalculateYearDepre(); //重算年折旧额
             },
             //文本框丢失焦点事件
-            TextBoxBlur: function (controlItemCode) {
+            TextBoxBlur: function(controlItemCode) {
                 //值无变化 直接返回
                 var oldValue = changeCardDr[controlItemCode];
                 var newValue = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue(controlItemCode);
@@ -1594,7 +1595,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     cardSelf.GetNewAssetCode(true);
             },
             //日期框变化事件
-            my97dateboxDchanged: function (controlItemCode, newValue) {
+            my97dateboxDchanged: function(controlItemCode, newValue) {
                 var oldValue = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue(controlItemCode);
                 changeCardDr[controlItemCode] = newValue; //更新判断值实时变化的数据
                 if (newValue == '')
@@ -1620,7 +1621,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 if (isAssetCodeAuto != "0" && formFlag == "A" && assetCodeFunc.indexOf("," + controlItemCode + ",") >= 0)
                     cardSelf.GetNewAssetCode(true);
             },
-            my97dateboxchanged: function (controlItemCode, newValue) {
+            my97dateboxchanged: function(controlItemCode, newValue) {
                 var oldValue = changeCardDr[controlItemCode];
                 changeCardDr[controlItemCode] = newValue; //更新判断值实时变化的数据
                 if (newValue == '')
@@ -1647,7 +1648,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     cardSelf.GetNewAssetCode(true);
             },
             //智能帮助前事件
-            SmarthelpOnDictEntryPicking: function (controlItemCode, help) {
+            SmarthelpOnDictEntryPicking: function(controlItemCode, help) {
                 var helpControl = $("#XSmart" + controlItemCode).adplookupbox('options').adp;
 
                 if (controlItemCode == 'GDZCZY_SYBM') { //使用部门
@@ -1699,7 +1700,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //智能帮助后事件
-            SmarthelpOnDictEntryPicked: function (controlItemCode, rowData) {
+            SmarthelpOnDictEntryPicked: function(controlItemCode, rowData) {
                 //值无变化 直接返回
                 var oldValue = changeCardDr[controlItemCode];
                 var newValue = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue(controlItemCode);
@@ -1739,7 +1740,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 重算项目
             //检查是否需要重算
-            CheckNeedCalculate: function (itemCode, itemFunc) {
+            CheckNeedCalculate: function(itemCode, itemFunc) {
                 var blNeed = false;
                 if (itemFunc.indexOf(itemCode) > 0)
                     return true;
@@ -1771,7 +1772,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return blNeed;
             },
             //重算入账折旧
-            CalculatorRzzj: function () {
+            CalculatorRzzj: function() {
                 if (isNotJt == "1")
                     return;
 
@@ -1848,7 +1849,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     cardSelf.UpdateBindData('GDZCZY_RZZJ', cardSelf.toDecimalZeroize(decRzzj, itemDecnDict.GDZCZY_RZZJ));
             },
             //重算累计折旧 是否计算月折旧额
-            CalculatorDepre: function (JSYzje) {
+            CalculatorDepre: function(JSYzje) {
                 //双倍余额递减法 已提折旧月份变化，月折旧额也变化
                 var strZJBH = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZJBH');
                 if (strZJBH == "03" || strZJBH == "J3") {
@@ -1866,7 +1867,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //重算月折旧率
-            CalculateMonthDepreRate: function () {
+            CalculateMonthDepreRate: function() {
                 if (isNotJt == "1")
                     return;
                 if (cardDeprecDr.YZJL.indexOf("GDZCZY_YZJE") >= 0 && cardDeprecDr.YZJE.indexOf("GDZCZY_YZJL") >= 0) {
@@ -1886,7 +1887,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //重算月折旧额
-            CalculateMonthDepre: function () {
+            CalculateMonthDepre: function() {
                 if (isNotJt == "1")
                     return;
                 if (cardDeprecDr.YZJL.indexOf("GDZCZY_YZJE") >= 0 && cardDeprecDr.YZJE.indexOf("GDZCZY_YZJL") >= 0) {
@@ -1913,17 +1914,17 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //重算净残值 原值,净残值率
-            CalculateNetSalvage: function (zcyz, jczl) {
+            CalculateNetSalvage: function(zcyz, jczl) {
                 var jcz = Number(cardSelf.toDecimal(zcyz * jczl / 100, iiJeDecn));
                 cardSelf.UpdateBindData('GDZCZY_JCZ', cardSelf.toDecimalZeroize(jcz, itemDecnDict.GDZCZY_JCZ));
             },
             //重算净残值率 原值,净残值
-            CalculateNetSalvageRate: function (zcyz, jcz) {
+            CalculateNetSalvageRate: function(zcyz, jcz) {
                 var jczl = Number(cardSelf.toDecimal(jcz / zcyz * 100, iiJeDecn));
                 cardSelf.UpdateBindData('GDZCZY_JCZL', cardSelf.toDecimalZeroize(jczl, itemDecnDict.GDZCZY_JCZL));
             },
             //重算已提月份
-            CalculateDepreMonth: function () {
+            CalculateDepreMonth: function() {
                 if (isNotJt == "1")
                     return;
                 if (cardSelf.CheckFieldExists("GDZCZY_QYRQ") == false) {
@@ -1999,7 +2000,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //重算年折旧率
-            CalculateYearDepreRate: function () {
+            CalculateYearDepreRate: function() {
                 if (isNotJt == "1")
                     return;
                 var strYzjl = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_YZJL'), itemDecnDict.GDZCZY_YZJL));
@@ -2009,7 +2010,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 cardSelf.UpdateBindData('GDZCZY_NZJL', cardSelf.toDecimalZeroize(strNzjl, itemDecnDict.GDZCZY_NZJL));
             },
             //重算年折旧额
-            CalculateYearDepre: function () {
+            CalculateYearDepre: function() {
                 if (isNotJt == "1")
                     return;
                 var decZcyz = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCYZ'), itemDecnDict.GDZCZY_ZCYZ));
@@ -2035,7 +2036,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 cardSelf.UpdateBindData('GDZCZY_NZJE', cardSelf.toDecimalZeroize(decNzje, itemDecnDict.GDZCZY_NZJE));
             },
             //重算公式项
-            CalculateFunc: function () {
+            CalculateFunc: function() {
                 for (var j = 0; j < companyItemDt.length; j++) {
                     var itemRow = companyItemDt[j];
                     var itemCode = itemRow.GDXMZD_XMBH;
@@ -2058,7 +2059,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 解析公式
             //解析计算公式 表达式
-            AnalysisExpress: function (expresstion) {
+            AnalysisExpress: function(expresstion) {
                 if (expresstion == '')
                     return "0";
 
@@ -2213,7 +2214,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return tmpStr;
             },
             //转换为具体值
-            TurnToValue: function (itemCode) {
+            TurnToValue: function(itemCode) {
                 var strZJBH = cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZJBH');
                 var zcyz = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZCYZ'), itemDecnDict.GDZCZY_ZCYZ));
                 var jcz = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_JCZ'), itemDecnDict.GDZCZY_JCZ));
@@ -2223,7 +2224,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 var zjyf = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_ZJYF'), itemDecnDict.GDZCZY_ZJYF));
                 var reValue = "";
                 if (itemCode == "GDZCZY_LJZJ" && (strZJBH == "03" || strZJBH == "J3") && sysj - zjyf > 24)
-                    //双倍余额递减法 非最后两年的累计折旧计算
+                //双倍余额递减法 非最后两年的累计折旧计算
                     reValue = cardSelf.CalFuncLjzj(strZJBH, zcyz, jcz, jzzb, zjyf, sysj);
                 else
                     reValue = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue(itemCode), itemDecnDict[itemCode]));
@@ -2232,7 +2233,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return reValue;
             },
             //转换为具体年度值
-            TurnToUseYearValue: function (itemField) {
+            TurnToUseYearValue: function(itemField) {
                 var value = Number(cardSelf.toDecimal(cardSelf.cardInstance().dataSource.tables('GDZCZY').rows(0).getValue('GDZCZY_SYNX'), itemDecnDict.GDZCZY_SYNX));
                 var resultValue;
                 var reValue = '';
@@ -2245,7 +2246,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return value;
             },
             //双倍余额递减法||减值或变动后的双倍余额递减法 计算公式使用的累计折旧
-            CalFuncLjzj: function (tempZJFF, tempZCYZ, tempJCZ, tempJZZB, tempZJYF, vsSYSJ) {
+            CalFuncLjzj: function(tempZJFF, tempZCYZ, tempJCZ, tempJZZB, tempZJYF, vsSYSJ) {
                 if (vsSYSJ == 0 || tempZCYZ == 0)
                     return 0;
                 var resultLJZJ = 0;
@@ -2266,7 +2267,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return Number(cardSelf.toDecimal(resultLJZJ, iiJeDecn));
             },
             //
-            CalDoubleBalanceFuncLjzj: function (tempZJFF, tempZCYZ, tempLJZJ, tempJZZB, tempZJNF, vsSYSJ) {
+            CalDoubleBalanceFuncLjzj: function(tempZJFF, tempZCYZ, tempLJZJ, tempJZZB, tempZJNF, vsSYSJ) {
                 if (tempZJNF == 0)
                     return tempLJZJ;
                 else {
@@ -2278,7 +2279,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //双倍余额递减法||减值或变动后的双倍余额递减法 计算真实的累计折旧
-            CalLjzj: function (tempZJFF, tempZCYZ, tempJCZ, tempJZZB, tempZJYF, vsSYSJ) {
+            CalLjzj: function(tempZJFF, tempZCYZ, tempJCZ, tempJZZB, tempZJYF, vsSYSJ) {
                 if (vsSYSJ == 0 || tempZCYZ == 0)
                     return 0;
                 if (vsSYSJ < tempZJYF)
@@ -2315,7 +2316,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //
-            CalDoubleBalanceLjzj: function (tempZJFF, tempZCYZ, tempLJZJ, tempJZZB, tempZJNF, tempZJYF, vsSYSJ) {
+            CalDoubleBalanceLjzj: function(tempZJFF, tempZCYZ, tempLJZJ, tempJZZB, tempZJNF, tempZJYF, vsSYSJ) {
                 if (tempZJNF == 0) {
                     if ((vsSYSJ - tempZJYF) > 24 && tempZJYF % 12 != 0) {
                         if (tempZJFF == "03")
@@ -2333,7 +2334,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //计算公式
-            Evaluate: function (express) {
+            Evaluate: function(express) {
                 var reValue = "0";
                 try {
                     reValue = String(eval(express));
@@ -2349,7 +2350,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 界面重新加载
             //切换类别后重新加载界面控件
-            ReloadForm: function (changeType) {
+            ReloadForm: function(changeType) {
                 //保存资产数据到cookie    
                 cardSelf.SaveCookieData();
                 //debugger;
@@ -2370,7 +2371,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //保存Cookie数据
-            SaveCookieData: function () {
+            SaveCookieData: function() {
                 var data = 'ZCKP=';
                 var formCookie = document.cookie;
                 var mainRow = cardSelf.cardInstance().dataSource.tables('GDZCZY').peek()[0];
@@ -2388,7 +2389,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
 
             //#region 公共函数
             //四舍五入
-            toDecimal: function (number, decn) {
+            toDecimal: function(number, decn) {
                 var f = parseFloat(number);
                 if (isNaN(f)) {
                     return 0;
@@ -2398,7 +2399,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return f;
             },
             //四舍五入补零
-            toDecimalZeroize: function (number, decn) {
+            toDecimalZeroize: function(number, decn) {
                 var f = parseFloat(number);
                 if (isNaN(f)) {
                     return 0.0;
@@ -2417,7 +2418,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return s;
             },
             //截取数据：前段（需去掉）,后段（需去掉）,截取前字符串
-            CutoutData: function (startStr, endStr, allStr) {
+            CutoutData: function(startStr, endStr, allStr) {
                 if (allStr.length > 0) {
                     var startIdx = allStr.indexOf(startStr);
                     var endIdx = -1;
@@ -2433,7 +2434,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                     return "";
             },
             // 组织智能帮助条件 左括号 字段 比较符 字段值 值类型 右括号 关系 
-            ArrangeCondition: function (pLbracket, pField, pCompare, pFieldValue, pDataType, pRbracket, pRelation) {
+            ArrangeCondition: function(pLbracket, pField, pCompare, pFieldValue, pDataType, pRbracket, pRelation) {
                 var Cond = '';
                 if (pDataType == 'String') {
                     Cond = '{"Lbracket":"' + pLbracket + '","Compare":" ' + pCompare + '","Field":"' + pField + '","DataType":"' + pDataType + '","Value":"' + pFieldValue + '","Rbracket":" ' + pRbracket + '","Relation":" ' + pRelation + ' ","IsCanChange":true,"ConvertUpperToCompare":false,"Expresstype":0,"FieldCaption":"","InnerFormula":"","Owner":"","DisplayValue":"' + pFieldValue + '","Description":""}';
@@ -2445,7 +2446,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 return Cond;
             },
             // 日期格式化
-            FormatDate8: function (date) {
+            FormatDate8: function(date) {
                 if (!date)
                     return '';
                 else if (typeof date == 'string' && date.length == 8 && date[0] == '2')
@@ -2456,22 +2457,22 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 }
             },
             //获取字符串长度
-            GetLength: function (str) {
+            GetLength: function(str) {
                 if (str !== null && str !== undefined) {
                     return str.replace(/[\u0391-\uFFE5]/g, "aa").length;
                 } else {
                     return 0;
                 }
             },
-            GetGuid: function () {
+            GetGuid: function() {
                 return (GetS4() + GetS4() + "-" + GetS4() + "-" + GetS4() + "-" + GetS4() + "-" + GetS4() + GetS4() + GetS4());
             },
-            GetS4: function () {
+            GetS4: function() {
                 return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
             },
             //#endregion 
             //资产删除共享中心模式
-            RemoveAssetCardforFSSC: function () {
+            RemoveAssetCardforFSSC: function() {
                 var cardSelf = this;
                 return $.Deferred().resolve([true]);
                 if (curCompanyCode == '') {

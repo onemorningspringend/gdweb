@@ -1,4 +1,4 @@
-gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", ['BizHandlePub', function (Pub) {
+gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", ['BizHandlePub', function(Pub) {
     var curYear = '';
     var curYearPeriod = ''; //年+月
     var curPeriod = ''; //当前会计期间
@@ -37,25 +37,25 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         GDBGZCXM: [], //变更资产项目值表
         GDBGXMJG: [] //变更项目条目表
     };
-    var dsBackups = {};//数据表备份，为取消使用
-    var ZCBGXMBackups = {};//数据表备份，为取消使用
+    var dsBackups = {}; //数据表备份，为取消使用
+    var ZCBGXMBackups = {}; //数据表备份，为取消使用
     var smartHelpInfo = {};
-    var lasttype = "";//上一个变更类型
-    var isSave = false;//是否点击了保存按钮
-    var state = "";//当前状态，"1":非查看，"0":查看
+    var lasttype = ""; //上一个变更类型
+    var isSave = false; //是否点击了保存按钮
+    var state = ""; //当前状态，"1":非查看，"0":查看
     var close = false;
     var sfNjwc = "";
     var sfCswc = "";
     var DWXZDialog = $('#IFrameDWXZDialog');
     var editflag = false;
-    var Spflag = "0";//审批标志 解决按钮问题
-    var emptydata = [];//空白数据 供取消使用
+    var Spflag = "0"; //审批标志 解决按钮问题
+    var emptydata = []; //空白数据 供取消使用
 
 
     return {
-        Frm_Load: function () {
+        Frm_Load: function() {
             var cardself = this;
-            var param = parseUrlParams(window.location);//从URL解析出的参数
+            var param = parseUrlParams(window.location); //从URL解析出的参数
             fsscflag = param["FSSCFLAG"] || '0';
             Operationfssc = param["INITIALACTIONID"];
             gsp.application.applicationContext.setParam('OPERATION', Operationfssc);
@@ -65,8 +65,8 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                         modal: true,
                         width: 350,
                         height: 240,
-                        onOpen: function () { },
-                        onClose: function () {
+                        onOpen: function() {},
+                        onClose: function() {
                             curCompanyCode = gsp.application.applicationContext.getParam('CURCOMPANYCODE');
                             curDate = gsp.application.applicationContext.getParam('CURDATE');
                             curYear = curDate.substring(0, 4);
@@ -79,7 +79,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 return cardself.NormalFrm_Load();
             }
         },
-        NormalFrm_Load: function () {
+        NormalFrm_Load: function() {
             var cardself = this;
             $.loading();
             URLparams = parseUrlParams(window.location);
@@ -95,21 +95,22 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 curDate = Pub.FormatDate8(URLparams['DATE']);
                 curYear = URLparams["YEAR"] || curDate.substring(0, 4);
             }
-            return cardself.GetGDParams(curYear, curCompanyCode, curDate).then(function () {
+            return cardself.GetGDParams(curYear, curCompanyCode, curDate).then(function() {
                 cardself.SetParams();
                 if (changeOrderNO) {
                     return cardself.SetChangeCard();
                 } else {
                     return $.Deferred().resolve();
                 }
-            }).then(function () {
+            }).then(function() {
                 cardself.SetUI();
                 cardself.ChangeState();
                 cardself.BindExitFunc();
-                $.extend(true, dsBackups, ds);//给ds做备份 供取消使用
+                $.extend(true, dsBackups, ds); //给ds做备份 供取消使用
                 $.extend(true, ZCBGXMBackups, ZCBGXM);
                 $.loaded();
-            }).fail(function () {
+                window.parent.$.loaded();
+            }).fail(function() {
                 if (fsscflag !== "1") {
                     cardself.close();
                 }
@@ -118,13 +119,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 绑定退出的事件
          */
-        BindExitFunc: function () {
+        BindExitFunc: function() {
             var cardself = this;
-            setTimeout(function () {
-                $(document).off('framerefresh').on('framerefresh', function () {
+            setTimeout(function() {
+                $(document).off('framerefresh').on('framerefresh', function() {
                     return cardself.FuncExitCheck("refresh");
                 });
-                $(document).off('frameclose').on('frameclose', function () {
+                $(document).off('frameclose').on('frameclose', function() {
                     return cardself.FuncExitCheck("close");
                 });
             }, 1000);
@@ -132,7 +133,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 改变起始状态
          */
-        ChangeState: function () {
+        ChangeState: function() {
             var cardself = this;
             switch (initialActionID) {
                 case "Create":
@@ -146,7 +147,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     state = "1";
                     cardself.BindChangeData()
                     return cardself.ChangeEdit()
-                        .then(function () {
+                        .then(function() {
                             cardself.context.view().transitInvoke('Edit', [{
                                 target: 'GDWebChangeCardController',
                                 methodName: 'BindChangeData',
@@ -171,20 +172,20 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 新增方法
          */
-        ChangeCreate: function () {
+        ChangeCreate: function() {
             var cardself = this;
             state = "1";
             $.loading();
             editflag = false;
-            return function () {
+            return function() {
                 if (cardself.cardInstance().dataSource && cardself.cardInstance().dataSource.tables(0) && cardself.cardInstance().dataSource.tables(0).rows(0)) {
                     return cardself.CheckIfCanMaintainChange();
                 } else {
                     return $.Deferred().resolve();
                 }
-            }().then(function () {
+            }().then(function() {
                 return cardself.create();
-            }).then(function () {
+            }).then(function() {
                 ZCBGXM = {};
                 ds = {
                     GDBGD: [], //变更单表
@@ -201,7 +202,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 emptydata = $.extend(true, {}, { GDBGJL: ds.GDBGD });
                 //是否默认勾选
                 return cardself.AddDefaultValue();
-            }).fail(function () {
+            }).fail(function() {
                 $.loaded();
                 state = "0";
                 cardself.cancelAction();
@@ -210,7 +211,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 新增时添加默认值
          */
-        AddDefaultValue: function () {
+        AddDefaultValue: function() {
             var cardself = this;
             if (bgZdgxCs === "1") {
                 $("#" + GDWebBizHandleConstants.ChangeCheckID).attr("checked", true);
@@ -219,7 +220,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             }
             var params = [curYear, curCompanyCode];
             return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetNextChangeOrderNO", params)
-                .then(function (result) {
+                .then(function(result) {
                     var dataSourceRow = cardself.cardInstance().dataSource.tables(0).rows(0);
                     var changerow = $.extend({}, dataSourceRow.peek());
                     changerow[GDWebBizHandleConstants.XPATH_GDBGJL_DWBH] = curCompanyCode;
@@ -236,7 +237,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 编辑变更单
          */
-        ChangeEdit: function () {
+        ChangeEdit: function() {
             var cardself = this;
             state = "1";
             if (!cardself.cardInstance().dataSource || !cardself.cardInstance().dataSource.tables(0) || !cardself.cardInstance().dataSource.tables(0).rows(0)) {
@@ -244,7 +245,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 return $.Deferred().reject();
             }
             $.loading();
-            return cardself.CheckIfCanMaintainChange().then(function () {
+            return cardself.CheckIfCanMaintainChange().then(function() {
                 $.loaded();
                 if (fsscflag === "1") {
                     editflag = true;
@@ -256,8 +257,8 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                             modal: true,
                             width: 290,
                             height: 200,
-                            onOpen: function () { },
-                            onClose: function () {
+                            onOpen: function() {},
+                            onClose: function() {
                                 if (!$('#' + GDWebBizHandleConstants.ChangeBGLXID).adplookupbox('textbox').val()) {
                                     return cardself.ChangeCreate();
                                 }
@@ -270,7 +271,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                         return cardself.ChangeCreate();
                     }
                 }
-            }).fail(function () {
+            }).fail(function() {
                 $.loaded();
                 cardself.cancelAction();
                 state = "0";
@@ -279,7 +280,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 取消变更单
          */
-        ChangeCancel: function () {
+        ChangeCancel: function() {
             var cardself = this;
             // console.log(ds);
             // console.log(dsBackups);
@@ -297,13 +298,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             // }
             // return cardself.cancelAction();
             if (initialActionID === "Create" && !isSave && fsscflag !== "1") {
-                return cardself.close().fail(function () {
+                return cardself.close().fail(function() {
                     return cardself.cancelAction();
                 });
             }
             var data = cardself.cardInstance().dataSource.tables(0).rows(0);
             if (!data) {
-                return cardself.create().then(function () {
+                return cardself.create().then(function() {
                     ZCBGXM = {};
                     ds = {
                         GDBGD: [], //变更单表
@@ -316,7 +317,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     return cardself.AddDefaultValue();
                 });
             } else {
-                ds = $.extend(true, {}, dsBackups);//将备份恢复过来
+                ds = $.extend(true, {}, dsBackups); //将备份恢复过来
                 var dss = {};
                 if (ds["GDBGD"].length == "0") {
                     dss = emptydata;
@@ -333,13 +334,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 保存变更单
          */
-        ChangeSave: function () {
+        ChangeSave: function() {
             var cardself = this;
             isSave = true;
             state = "0";
             var data = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             $.loading();
-            return cardself.TableEndEditing(BGXMList).then(function () {
+            return cardself.TableEndEditing(BGXMList).then(function() {
                 ds["GDBGD"][0] = data;
                 if (!cardself.HasChanges()) {
                     $.messager.alert("提示", "当前变更单数据未发生改动，不需保存！", "warning");
@@ -356,24 +357,24 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     isReCalcCard = false;
                     return $.Deferred().resolve();
                 }
-            }).then(function () {
+            }).then(function() {
                 var changeOrderNO = data[GDWebBizHandleConstants.XPATH_GDBGJL_BGDH];
                 var params = [curYear, curCompanyCode, changeOrderNO, ds, curPeriod, changeNetSalvageValueBase, isReCalcCard, curDate];
                 var b = params[3];
                 return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "SaveChangeReCalc", params);
-            }).then(function (result) {
+            }).then(function(result) {
                 var resultds = result.outParams;
                 $.extend(true, ds, resultds);
                 AssetList.datagrid('loadData', Pub.FilterData(ds.GDBGZC, GDWebBizHandleConstants.XPATH_GDBGJL_BJZT, "D", false));
                 cardself.SetZCBGXM(ds);
                 AssetList.datagrid("selectRow", 0);
-                $.extend(true, dsBackups, ds);//给ds做备份 供取消使用
+                $.extend(true, dsBackups, ds); //给ds做备份 供取消使用
                 $.extend(true, ZCBGXMBackups, ZCBGXM);
                 $.loaded();
                 cardself.notifyGlobalParent();
                 //cardself.refreshParentFunc();
                 $.notify.success('保存成功！');
-            }).fail(function () {
+            }).fail(function() {
                 cardself.cancelAction();
                 $.loaded();
                 state = "1";
@@ -385,13 +386,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 共享中心模式下的保存方法
          */
-        ChangeSaveforFSSC: function () {
+        ChangeSaveforFSSC: function() {
             var cardself = this;
             isSave = true;
             state = "0";
             var data = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             $.loading();
-            return cardself.TableEndEditing(BGXMList).then(function () {
+            return cardself.TableEndEditing(BGXMList).then(function() {
                 ds["GDBGD"][0] = data;
                 if (!cardself.HasChanges()) {
                     $.messager.alert("提示", "当前变更单数据未发生改动，不需保存！", "warning");
@@ -408,7 +409,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     isReCalcCard = false;
                     return $.Deferred().resolve();
                 }
-            }).then(function () {
+            }).then(function() {
                 ds["GDBGD"][0][GDWebBizHandleConstants.XPATH_GDBGJL_CSYZJ] = isReCalcCard ? "1" : "0";
                 var changeOrderNO = data[GDWebBizHandleConstants.XPATH_GDBGJL_BGDH];
                 var dataParams = {};
@@ -426,7 +427,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 ds["dataParams"][0] = dataParams;
                 cardself.SetFSSCParams(ds);
                 return $.Deferred().resolve(ds);
-            }).fail(function () {
+            }).fail(function() {
                 cardself.cancelAction();
                 $.loaded();
             });
@@ -434,14 +435,14 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 共享中心下设置需要传的值
          */
-        SetFSSCParams: function (dsData) {
+        SetFSSCParams: function(dsData) {
             var cardself = this;
             var GDBGD = dsData.GDBGD[0];
             var GDBGZC = dsData.GDBGZC[0];
             var FSSCParams = {};
-            FSSCParams["BILLID"] = GDBGD[GDWebBizHandleConstants.XPATH_GDBGJL_BGDH]
-                + "~" + curCompanyCode + "~"
-                + GDBGZC[GDWebBizHandleConstants.XPATH_GDBGJL_ZCBH] + "~" + curYear;
+            FSSCParams["BILLID"] = GDBGD[GDWebBizHandleConstants.XPATH_GDBGJL_BGDH] +
+                "~" + curCompanyCode + "~" +
+                GDBGZC[GDWebBizHandleConstants.XPATH_GDBGJL_ZCBH] + "~" + curYear;
             FSSCParams["GDJSZC_DWBH"] = curCompanyCode;
             FSSCParams["GDJSZC_ZDR"] = GDBGD[GDWebBizHandleConstants.XPATH_GDBGJL_BGR];
             FSSCParams["GDJSZC_JSRQ"] = GDBGD[GDWebBizHandleConstants.XPATH_GDBGJL_BGRQ];
@@ -452,10 +453,10 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 保存后事件（只用于FSSC）
          */
-        SaveAfter: function () {
+        SaveAfter: function() {
             var cardself = this;
-            return cardself.SetChangeCard().then(function () {
-                $.extend(true, dsBackups, ds);//给ds做备份 供取消使用
+            return cardself.SetChangeCard().then(function() {
+                $.extend(true, dsBackups, ds); //给ds做备份 供取消使用
                 $.extend(true, ZCBGXMBackups, ZCBGXM);
                 cardself.BindChangeData();
                 AssetList.datagrid("selectRow", 0);
@@ -465,7 +466,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 把ZCBGXM的值更新给DS(可能存在性能问题)
          */
-        SetDsValue: function () {
+        SetDsValue: function() {
             var cardself = this;
             for (var i = 0; i < ds.GDBGZCXM.length; i++) {
                 var zcid = ds.GDBGZCXM[i][GDWebBizHandleConstants.XPATH_GDBGJL_ZCID];
@@ -486,9 +487,9 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             $.extend(true, ds.GDBGD[0], cardself.cardInstance().dataSource.tables(0).rows(0).peek());
         },
         /**
-        * 大型豪华保存前检查
-        */
-        Validate: function () {
+         * 大型豪华保存前检查
+         */
+        Validate: function() {
             var cardself = this;
             var sbMessage = "";
             var dataSource = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
@@ -559,7 +560,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     latestText = structureDr[GDWebBizHandleConstants.XPATH_GDBGJL_BZ].trim();
                     originalChangeText = structureDr[GDWebBizHandleConstants.XPATH_GDBGJL_YSBZ].trim();
                     switch (controlMode) {
-                        case "1"://必须变
+                        case "1": //必须变
                             if (itemType !== "N") {
                                 if (originalText === latestText)
                                     sbMessage += assetCode + " 资产的 " + structureDr[GDWebBizHandleConstants.XPATH_GDBGJL_BGXMMC] + " 信息必须变更，请修改！<br>";
@@ -568,8 +569,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                                         return false;
                                 }
 
-                            }
-                            else {
+                            } else {
                                 originalValue = originalText * 1;
                                 latestValue = latestText * 1;
                                 originalChangeValue = originalChangeText * 1;
@@ -583,14 +583,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                                 }
                             }
                             break;
-                        case "2"://可以变
+                        case "2": //可以变
                             if (itemType !== "N") {
                                 if (latestText !== originalChangeText) {
                                     if (!cardself.UpdateAssetEditState(assetCode, "E"))
                                         return false;
                                 }
-                            }
-                            else {
+                            } else {
                                 originalValue = originalText * 1;
                                 latestValue = latestText * 1;
                                 originalChangeValue = originalChangeText * 1;
@@ -602,13 +601,12 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                                 }
                             }
                             break;
-                        case "0"://不允许变
+                        case "0": //不允许变
                         default:
                             if (itemType !== "N") {
                                 if (originalText !== latestText)
                                     sbMessage += assetCode + " 资产的 " + structureDr[GDWebBizHandleConstants.XPATH_GDBGJL_BGXMMC] + " 信息不允许变更，请修改！<br>";
-                            }
-                            else {
+                            } else {
                                 originalValue = originalText * 1;
                                 latestValue = latestText * 1;
                                 if (originalValue !== latestValue)
@@ -631,14 +629,14 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 功能刷新和退出时的检查 1:刷新 0：退出
          * @param {*string} assetCode - 项目对应的资产编号
          */
-        FuncExitCheck: function (flag) {
+        FuncExitCheck: function(flag) {
             var cardself = this;
             if (close || state === "0") {
                 return true;
             }
-            cardself.TableEndEditing(BGXMList).then(function () {
+            cardself.TableEndEditing(BGXMList).then(function() {
                 if (cardself.HasChanges(true) && state === "1" && !close) {
-                    return Pub.ThreeButtonConfirm("提示", "数据已修改，是否保存？").then(function (result) {
+                    return Pub.ThreeButtonConfirm("提示", "数据已修改，是否保存？").then(function(result) {
                         if (result === "1") {
                             cardself.context.view().transitInvoke('Cancel', [{
                                 target: 'GDWebChangeCardController',
@@ -668,10 +666,10 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             return false;
         },
         /**
-        * 检查是否修改过
-        * @param {*bool} flag - true为深度检查
-        */
-        HasChanges: function (flag) {
+         * 检查是否修改过
+         * @param {*bool} flag - true为深度检查
+         */
+        HasChanges: function(flag) {
             var cardself = this;
             //帮助清空的时候会自动赋值为null,此处赋为空
             for (var key in ds['GDBGD'][0]) {
@@ -695,7 +693,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 检查是否可以新增资产
          */
-        CheckIfCanMaintainChangeAsset: function () {
+        CheckIfCanMaintainChangeAsset: function() {
             var cardself = this;
             var bglx = cardself.cardInstance().dataSource.tables(0).rows(0).peek()[GDWebBizHandleConstants.XPATH_GDBGJL_BGLX];
             var changeTypeName = (bglx + '').trim();
@@ -708,7 +706,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 检查是否允许做变更
          */
-        CheckIfCanMaintainChange: function () {
+        CheckIfCanMaintainChange: function() {
             var cardself = this;
             if (cardself.cardInstance().dataSource) {
                 var dataSourceRow = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
@@ -725,7 +723,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                         }
                         var params = [curYear, currChangeTypeClass];
                         return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetChangeTypeInfo", params)
-                            .then(function (result) {
+                            .then(function(result) {
                                 if (result.data === "1") {
                                     if (ifJtzj === "1") {
                                         $.messager.alert("提示", "已计提折旧不允许再维护变更业务", "warning");
@@ -756,7 +754,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param {*string} assetCode - 项目对应的资产编号
          * @param {*string} editState - 需要更改的编辑状态
          */
-        UpdateAssetEditState: function (assetCode, editState) {
+        UpdateAssetEditState: function(assetCode, editState) {
             var cardself = this;
             for (var i = 0; i < ds.GDBGZC.length; i++) {
                 var assetRow = ds.GDBGZC[i];
@@ -772,7 +770,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 新增资产
          */
-        AddAsset: function () {
+        AddAsset: function() {
             var cardself = this;
             if (!cardself.CheckIfCanMaintainChangeAsset()) {
                 return false;
@@ -782,7 +780,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 $.messager.alert("提示", "不允许变更多个资产！", "warning");
                 return false;
             }
-            return cardself.CheckIfCanMaintainChange().then(function () {
+            return cardself.CheckIfCanMaintainChange().then(function() {
 
                 var AssetHelp = $('#' + GDWebBizHandleConstants.AddAssetHelp).adplookupbox('options').adp;
                 var condition = " '" + curCompanyCode + "' and GDZCZY_CWQR = '1' and (GDZCZY_ZZQJ = ' ' or GDZCZY_ZZQJ is null)" +
@@ -798,7 +796,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 删除资产
          */
-        RemoveAsset: function () {
+        RemoveAsset: function() {
             var cardself = this;
             if (!cardself.CheckIfCanMaintainChangeAsset()) {
                 return false;
@@ -840,18 +838,17 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                         i--;
                     }
                 }
-                delete (ZCBGXM[assetID]);
+                delete(ZCBGXM[assetID]);
                 AssetList.datagrid('loadData', Pub.FilterData(ds.GDBGZC, GDWebBizHandleConstants.XPATH_GDBGJL_BJZT, "D", false));
                 if (emptyList) {
                     BGXMList.datagrid("loadData", ds.GDBGXMJG);
                     BGXMList.datagrid('options').readonly = true;
-                }
-                else {
+                } else {
                     AssetList.datagrid('selectRow', index);
                 }
             } else {
                 return cardself.blockConfirm('询问', '删除当前变更资产后就不能在当前变更单上对该资产进行重新变更。<br>确定要删除吗？')
-                    .then(function () {
+                    .then(function() {
                         currAssetDr[GDWebBizHandleConstants.XPATH_GDBGJL_BJZT] = "D";
                         AssetList.datagrid('loadData', Pub.FilterData(ds.GDBGZC, GDWebBizHandleConstants.XPATH_GDBGJL_BJZT, "D", false));
                         if (emptyList) {
@@ -866,7 +863,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 获得变更信息并绑定（异步）
          */
-        SetChangeCard: function () {
+        SetChangeCard: function() {
             var cardself = this;
             ds = {
                 GDBGD: [], //变更单表
@@ -881,7 +878,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             }
             var params = [curYear, curCompanyCode, changeOrderNO, fsscflag, curDate];
             return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetChangeInfo", params)
-                .then(function (result) {
+                .then(function(result) {
                     ds = result.data;
                     if (!cardself.cardInstance().schema && cardself.cardInstance().formID) {
                         cardself.cardInstance().loadSchema(cardself.cardInstance().formID);
@@ -896,7 +893,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     cardself.context.view().bindData(cardself.cardInstance().dataSource);
                     cardself.SetZCBGXM(ds);
                     return cardself.GetXMSmartInfo(ds.GDBGXMJG);
-                }).fail(function () {
+                }).fail(function() {
                     if (fsscflag !== 1) {
                         cardself.close();
                     }
@@ -906,11 +903,11 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 给smartHelpInfo赋值
          * @param  {Object} XMList - 取回的项目结果集
          */
-        GetXMSmartInfo: function (XMList) {
+        GetXMSmartInfo: function(XMList) {
             var cardself = this;
             var params = [XMList, curYear, curCompanyCode, curDate];
             return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetCzzd", params)
-                .then(function (result) {
+                .then(function(result) {
                     smartHelpInfo = result.data;
                 });
         },
@@ -918,7 +915,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 给ZCBGXM赋值
          * @param  {Object} dataset - 取回的变更结果集
          */
-        SetZCBGXM: function (dataset) {
+        SetZCBGXM: function(dataset) {
             var cardself = this;
             var ZC = dataset.GDBGZC;
             var XM = dataset.GDBGXMJG;
@@ -960,7 +957,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置属性值
          */
-        SetParams: function () {
+        SetParams: function() {
             var cardself = this;
             currJeDecn = dicParams["GD_JEDECN"] * 1;
             currSlDecn = dicParams["GD_SLDECN"] * 1;
@@ -1013,11 +1010,11 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param  {String} companyCode - 公司编号
          * @param  {String} date - 业务日期
          */
-        GetGDParams: function (year, companyCode, date) {
+        GetGDParams: function(year, companyCode, date) {
             var cardself = this;
             var params = [companyCode, year, date, "CHANGECARD"];
             return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDwParams", params)
-                .then(function (result) {
+                .then(function(result) {
                     if (result) {
                         dicParams = result.data;
                     }
@@ -1027,7 +1024,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     } else {
                         return $.Deferred().resolve();
                     }
-                }).then(function (result) {
+                }).then(function(result) {
                     if (result) {
                         dicParams = $.extend({}, result.data, dicParams);
                     }
@@ -1036,7 +1033,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置界面显示
          */
-        SetUI: function () {
+        SetUI: function() {
             var cardself = this;
             cardself.SetTextColor();
             cardself.SetColumns();
@@ -1069,7 +1066,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置变更单帮助的过滤条件
          */
-        SetChangeHelp: function () {
+        SetChangeHelp: function() {
             var cardself = this;
             var BGRHelp = $('#' + GDWebBizHandleConstants.ChangeBGRID).adplookupbox('options').adp; //变更人帮助
             var SHRHelp = $('#' + GDWebBizHandleConstants.ChangeSHRID).adplookupbox('options').adp; //审核人帮助
@@ -1087,21 +1084,21 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置变更类型帮助
          */
-        SetBGLXHelp: function () {
+        SetBGLXHelp: function() {
             var cardself = this;
             var BGLXHelp = $('#' + GDWebBizHandleConstants.ChangeBGLXID);
-            BGLXHelp.on('OnDictEntryPicking', function (e, rowData, opts) {
+            BGLXHelp.on('OnDictEntryPicking', function(e, rowData, opts) {
                 var BGDDataSource = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
                 lasttype = BGDDataSource['GDBGJL_BGLX'];
             });
-            BGLXHelp.on('OnDictEntryPicked', function (e, rowData, opts) {
+            BGLXHelp.on('OnDictEntryPicked', function(e, rowData, opts) {
                 var row = rowData[0] || rowData;
                 var changeType = row['GDBGLX_LXBH'];
                 if (changeType !== lasttype && changeType) {
                     $.loading();
                     var params = [curYear, curCompanyCode, changeType];
                     return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetChangeItemStructure", params)
-                        .then(function (result) {
+                        .then(function(result) {
                             ZCBGXM = {};
                             ds.GDBGZC = [];
                             ds.GDBGZCXM = [];
@@ -1112,7 +1109,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                             BGXMList.datagrid("loadData", ds['GDBGXMJG']);
                             BGXMList.datagrid('options').readonly = true;
                             return cardself.GetXMSmartInfo(ds.GDBGXMJG);
-                        }).then(function () {
+                        }).then(function() {
                             $.loaded();
                         });
                 }
@@ -1121,10 +1118,10 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置新增资产帮助
          */
-        SetAddAssetHelp: function () {
+        SetAddAssetHelp: function() {
             var cardself = this;
             var AssetHelp = $('#' + GDWebBizHandleConstants.AddAssetHelp);
-            AssetHelp.on('OnDictEntryPicked', function (e, rowData, opts) {
+            AssetHelp.on('OnDictEntryPicked', function(e, rowData, opts) {
                 $.loading();
                 var data = rowData;
                 var assetCodes = "'";
@@ -1139,14 +1136,14 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     existAsset += AssetGroup[i][GDWebBizHandleConstants.XPATH_GDBGJL_ZCBH] + ";";
                 }
                 existAsset = existAsset.trim().substring(0, existAsset.length - 1);
-                $("#XSmartDictLookup_AddAsset").next().find(".panel-tool-close").click();//清空一下帮助框，避免自动选择的问题
+                $("#XSmartDictLookup_AddAsset").next().find(".panel-tool-close").click(); //清空一下帮助框，避免自动选择的问题
                 return cardself.AddNewChangeAssetInfo(assetCodes, currChangeTypeClass, existAsset, "");
             });
         },
         /**
          * 添加新的资产信息
          */
-        AddNewChangeAssetInfo: function (assetCodesOrCondi, currChangeTypeClass, existAsset, customCondition) {
+        AddNewChangeAssetInfo: function(assetCodesOrCondi, currChangeTypeClass, existAsset, customCondition) {
             var cardself = this;
             var BGJL = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             var params = [
@@ -1163,7 +1160,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             ];
             $.loading();
             return cardself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetNewChangeAssetInfo", params)
-                .then(function (result) {
+                .then(function(result) {
                     var dsGDBGZC = result.data;
                     var dtGDBGZC = dsGDBGZC["GDBGZC"];
                     var length = AssetList.datagrid("getRows").length;
@@ -1179,7 +1176,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 获得资产其他条件
          */
-        GetAssetOtherCondition: function () {
+        GetAssetOtherCondition: function() {
             var cardself = this;
             var condition = '';
             var BGJL = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
@@ -1201,9 +1198,9 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置项目编辑控件
          */
-        SetXMEditor: function () {
+        SetXMEditor: function() {
             var cardself = this;
-            BGXMList.on('beforeEditCell', function (event, data) {
+            BGXMList.on('beforeEditCell', function(event, data) {
                 var field = data["field"];
                 var rowIndex = data["rowIndex"];
                 if (BGXMList.datagrid('options').readonly) {
@@ -1220,7 +1217,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 }
                 cardself.SetParamValueEdit(changeItemStructureDr, field);
             });
-            BGXMList.datagrid("options").onBeginEdit = function (index, row) {
+            BGXMList.datagrid("options").onBeginEdit = function(index, row) {
                 var editors = BGXMList.datagrid('getEditors', index);
                 var changeItemStructureDr = $(this).datagrid("getRows")[index];
                 var length = changeItemStructureDr[GDWebBizHandleConstants.XPATH_GDXMZD_LENG] * 1;
@@ -1229,12 +1226,12 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     var index = index;
                     var field = editor.field;
                     var nowValue = editor.oldHtml;
-                    setTimeout(function () {
+                    setTimeout(function() {
                         if (nowValue && editor.type === "adplookupbox") {
                             editor.target.next().children().val(nowValue); //解决点一下值就消失的问题
                         }
                         if (editor.type !== "my97datebox") {
-                            $(editor.target).bind('keyup', function (e) {
+                            $(editor.target).bind('keyup', function(e) {
                                 var input = $(this).val();
                                 if (input.length > length)
                                     $(this).val(input.substring(0, 4));
@@ -1249,7 +1246,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     });
                 }
             };
-            BGXMList.datagrid("options").onEndEdit = function (rowIndex, rowData, changes) {
+            BGXMList.datagrid("options").onEndEdit = function(rowIndex, rowData, changes) {
                 var XMLX = rowData[GDWebBizHandleConstants.XPATH_GDXMZD_XMLX]; //项目类型
                 var changeItem = rowData[GDWebBizHandleConstants.XPATH_GDBGJL_BGXM];
                 var BDZ = rowData[GDWebBizHandleConstants.XPATH_GDBGJL_BDZ];
@@ -1428,7 +1425,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 }
                 //rowData[GDWebBizHandleConstants.XPATH_GDBGJL_BZ] = rowData[GDWebBizHandleConstants.XPATH_GDBGJL_BZ] + '';
             };
-            BGXMList.datagrid("options").onAfterEdit = function (rowIndex, rowData, changes) {
+            BGXMList.datagrid("options").onAfterEdit = function(rowIndex, rowData, changes) {
                 BGXMList.datagrid("loadData", ZCBGXM[rowData[GDWebBizHandleConstants.XPATH_GDBGJL_ZCID]]);
             };
         },
@@ -1436,7 +1433,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 根据选择的使用单位去改变使用人和使用部门的过滤条件
          * @param {string} SYDW - 使用单位
          */
-        ChangeSmartHelpInfo: function (SYDW) {
+        ChangeSmartHelpInfo: function(SYDW) {
             var cardself = this;
             if (!SYDW) {
                 var bglist = BGXMList.datagrid("getRows");
@@ -1460,7 +1457,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 编辑失败时清空输入的值
          */
-        EditFail: function (row) {
+        EditFail: function(row) {
             var cardself = this;
             row[GDWebBizHandleConstants.XPATH_GDBGJL_BDZ] = "";
             row[GDWebBizHandleConstants.XPATH_GDBGJL_BZ] = "";
@@ -1474,7 +1471,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param {*string} name - 需要变更的名称
          * @param {*string} itemType - 需要变更的类型
          */
-        UpdateChangeItemStructureValue: function (assetId, changeItem, value, name, itemType) {
+        UpdateChangeItemStructureValue: function(assetId, changeItem, value, name, itemType) {
             var isUpdate = false;
             for (var i = 0; i < ZCBGXM[assetId].length; i++) {
                 var structureDr = ZCBGXM[assetId][i];
@@ -1497,7 +1494,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param {*string} assetCode - 项目对应的资产ID 
          * @param {*string} changeItem - 需要获得的项目编号
          */
-        GetChangeItemStructureValue: function (assetCode, changeItem) {
+        GetChangeItemStructureValue: function(assetCode, changeItem) {
             var resultValue = {};
             resultValue["isExist"] = false;
             for (var i = 0; i < ZCBGXM[assetCode].length; i++) {
@@ -1518,7 +1515,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param  {Object} changeItemStructureDr - 当前编辑行
          * @param  {String} field - 过滤行
          */
-        SetParamValueEdit: function (changeItemStructureDr, field) {
+        SetParamValueEdit: function(changeItemStructureDr, field) {
             var cardself = this;
             var type = changeItemStructureDr[GDWebBizHandleConstants.XPATH_GDXMZD_XMLX].trim() + '';
             var ifCompare = changeItemStructureDr["GDXMZD_IFDZ"].trim();
@@ -1562,13 +1559,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * @param  {String} strXMBH - 项目编号
          * @param  {Object} element - 列元素
          */
-        SetXMSmartHelp: function (strXMBH, field) {
+        SetXMSmartHelp: function(strXMBH, field) {
             var cardself = this;
             var editor = cardself.GetEditor("A");
             editor.options.adp.helpID = smartHelpInfo[strXMBH]["strHelpID"]; //智能帮助所需帮助ID
             var strHelpCondi = smartHelpInfo[strXMBH]["strHelpCondi"];
             var strHelpNavCondi = smartHelpInfo[strXMBH]["strHelpNavCondi"];
-            if (typeof (strHelpCondi) !== "string") {
+            if (typeof(strHelpCondi) !== "string") {
                 strHelpCondi = JSON.stringify(smartHelpInfo[strXMBH]["strHelpCondi"]);
                 if (strXMBH !== "GDZCZY_SYBM" && strXMBH !== "GDZCZY_SYR") {
                     smartHelpInfo[strXMBH]["strHelpCondi"] = JSON.stringify(smartHelpInfo[strXMBH]["strHelpCondi"]);
@@ -1593,7 +1590,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 非新增状态下加载数据
          */
-        BindChangeData: function () {
+        BindChangeData: function() {
             var cardself = this;
             AssetList.datagrid('loadData', Pub.FilterData(ds.GDBGZC, GDWebBizHandleConstants.XPATH_GDBGJL_BJZT, "D", false));
             BGXMList.datagrid('loadData', ds.GDBGXMJG);
@@ -1608,7 +1605,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置动态列
          */
-        SetColumns: function () {
+        SetColumns: function() {
             var cardself = this;
             var columnsSchema = {
                 columns: [
@@ -1703,7 +1700,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 设置一下文字显示的颜色，以便观察
          */
-        SetTextColor: function () {
+        SetTextColor: function() {
             var cardself = this;
             $('#' + GDWebBizHandleConstants.ChangeBGDHID).text('textbox').css('color', 'black');
             $('#' + GDWebBizHandleConstants.ChangeBGLXID).adplookupbox('textbox').css('color', 'black');
@@ -1716,12 +1713,12 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 行选中事件
          */
-        SelectRow: function () {
+        SelectRow: function() {
             var cardself = this;
             if (!cardself.cardInstance().dataSource || !cardself.cardInstance().dataSource.tables(0) || !cardself.cardInstance().dataSource.tables(0).rows(0)) {
                 return;
             }
-            return cardself.TableEndEditing(BGXMList).then(function () {
+            return cardself.TableEndEditing(BGXMList).then(function() {
                 var row = AssetList.datagrid('getSelected');
                 var selectIndex = AssetList.datagrid('getRowIndex', row);
                 currentRow = selectIndex;
@@ -1740,7 +1737,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 获取不同的控件类型
          * @param  {String} flag - 控件类型
          */
-        GetEditor: function (flag) {
+        GetEditor: function(flag) {
             var cardself = this;
             var helpEditor = {
                 type: 'adplookupbox',
@@ -1820,7 +1817,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
          * 离开datagrid上的焦点(异步)
          * @param  {object} datagrid - 需要离开焦点的表格$
          */
-        TableEndEditing: function (datagrid) {
+        TableEndEditing: function(datagrid) {
             if (datagrid[0]) {
                 return this.treeGridHelper.getEditHelper(datagrid).endEditing();
             } else {
@@ -1830,7 +1827,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 离开datagrid上的焦点(异步)
          */
-        HideButton: function () {
+        HideButton: function() {
             $('#PresetedBar').buttongroup('hideButton', GDWebBizHandleConstants.ChangeCreateButtonID);
             $('#PresetedBar').buttongroup('hideButton', GDWebBizHandleConstants.ChangeEditButtonID);
             $('#PresetedBar').buttongroup('hideButton', GDWebBizHandleConstants.ChangeCancelButtonID);
@@ -1841,13 +1838,13 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 摘要失去焦点事件
          */
-        DescLostFocus: function () {
+        DescLostFocus: function() {
             var cardself = this;
         },
         /**
          * 删除方法（供共享中心使用）
          */
-        RemoveChange: function () {
+        RemoveChange: function() {
             var wzself = this;
             if (!wzself.CheckIfCanMaintainChange(false)) {
                 return $.Deferred.reject([false]);
@@ -1858,7 +1855,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 删除变更的方法 仅为共享模式使用
          */
-        DeleteChange: function (zdrSc) {
+        DeleteChange: function(zdrSc) {
             var cardself = this;
             var DateSet = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             var zcbh = ds["GDBGZC"][0]['GDBGJL_ZCBH'];
@@ -1878,7 +1875,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 保存后更新FSSCFLAG字段
          */
-        UpdateFlag: function () {
+        UpdateFlag: function() {
             var cardself = this;
             var data = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             var params = ["GDBGJL", data[GDWebBizHandleConstants.XPATH_GDBGJL_BGDH], curCompanyCode, Pub.FormatDate8(data[GDWebBizHandleConstants.XPATH_GDBGJL_BGRQ])];
@@ -1887,7 +1884,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         /**
          * 稽核前台扩展方法
          */
-        BatchConfig: function () {
+        BatchConfig: function() {
             var cardself = this;
             var data = cardself.cardInstance().dataSource.tables(0).rows(0).peek();
             return cardself.CheckIfCanMaintainChange();

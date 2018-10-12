@@ -62,17 +62,51 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 $.loading();
                 var param = parseUrlParams(window.location); //从URL解析出的参数
                 curUserName = gsp.rtf.context.get('UserName'); //获取用户名字
+                curDate = wzself.FormatDate8(gsp.rtf.context.get('BizDate')); //获取当前业务日期
                 if (fsscflag === "1" && Operationfssc === "Create") {
                     param["YEAR"] = curYear;
                     param["COMPANYCODE"] = curCompanyCode;
                     param["DATE"] = curDate;
                 }
                 if (!param["YEAR"]) {
+                    if (!param["DATE"]) {
+                        param["DATE"] = curDate;
+                    }
                     param["YEAR"] = param["DATE"].substring(0, 4);
                 }
+
                 curCompanyCode = param["COMPANYCODE"];
                 curYear = param["YEAR"];
                 curDate = param["DATE"];
+
+                //专门处理下审批单据那里的加载
+                if (fsscflag === "1" && Operationfssc === "SPView") {
+                    params = [param["YEAR"], param["dataId"]];
+                    return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetJzxxforSP", params)
+                        .then(function(result) {
+                            if (result) {
+                                param["SORTCODE"] = result.data.Table[0]["GDJZLB_JZLB"];
+                                param["SORTNAME"] = result.data.Table[0]["GDJZLB_JZMC"];
+                                param["ASSETCODE"] = result.data.Table[0]["GDJZQD_ZCBH"];
+                                param["ASSETNAME"] = result.data.Table[0]["GDZCZY_ZCMC"];
+
+                                wzself.SetGridJecn();
+                                $(".numberbox").find(".textbox-text").css("text-align", "right"); //设置数值型的靠右边显示
+
+                                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZLB).adplookupbox('setValue', param["SORTCODE"]);
+                                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZLB).adplookupbox('setText', param["SORTNAME"]);
+                                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('setValue', param["ASSETCODE"]);
+                                $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('setText', param["ASSETNAME"]);
+                                return wzself.RefreshDevalueCard(param["SORTCODE"], param["ASSETCODE"]).then(function() {
+                                    wzself.SetDev(true);
+                                })
+                            }
+                        }).then(function() {
+                            $.loaded();
+                            window.parent.$.loaded();
+                            loading = false;
+                        })
+                }
 
                 return wzself.GetGDParams(curYear, curCompanyCode, curDate)
                     .then(function() {
