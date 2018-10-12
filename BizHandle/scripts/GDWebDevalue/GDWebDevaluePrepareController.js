@@ -150,8 +150,8 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 var devaluedata = wzself.cardInstance().dataSource.peek();
                 var devaluedatalen = wzself.cardInstance().dataSource.peek().GDJZQD.length;
                 if (devaluedata !== null && devaluedatalen > 0) {
-                    return wzself.blockConfirm("提示", "将自动更新市值，是否继续？").then(function(result) {
-                        if (result === "1") {
+                    wzself.blockConfirm("提示", "将自动更新市值，是否继续？").then(
+                        function() {
                             var params = [devaluedata, sortcode, true, curCompanyCode, curDate];
                             return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "CalculateSZ", params).then(
                                 function(result) {
@@ -169,10 +169,9 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                 $.messager.alert('提示', "无法计算市值！", 'warning');
                                 return $.Deferred().reject();
                             })
-                        } else {
-                            return $.Deferred().reject();
-                        }
-                    });
+                        }).fail(function() {
+                        return $.Deferred().reject();
+                    })
                 }
             },
             /**
@@ -501,6 +500,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 }
                 wzself.SetGridJecn();
                 $(".numberbox").find(".textbox-text").css("text-align", "right"); //设置数值型的靠右边显示
+
+                //非编辑或者新增的情况下控制【计算减值】和【取消减值】按钮不可用
+                if (Operationfssc !== "Create" && Operationfssc !== "Edit") {
+                    $('#Bar1').buttongroup('disable', '9f883a03-4c26-4fbe-a236-258501beb30a');
+                    $('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c');
+                }
 
                 if (Operationfssc !== "Create") {
                     //减值类别帮助
