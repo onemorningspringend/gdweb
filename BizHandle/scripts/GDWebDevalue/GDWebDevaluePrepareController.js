@@ -542,11 +542,19 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     $('#XCheckBox1').attr('disabled', true); //是否置零复选框
                     $('#Label1').show(); //已审核标签
                     $("#Label1").css({ 'color': 'red' }); //设置已审核标签这三个字为红色
+                    $('#Bar1').buttongroup('disable', '9f883a03-4c26-4fbe-a236-258501beb30a'); //计算市值
+                    $('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
+                    parent.$('#BarPubBill').buttongroup('disable', 'd858c873-f520-42af-baab-b32ec75076f3'); //共享取消按钮
+                    parent.$('#BarPubBill').buttongroup('disable', '5d549369-511b-44b5-957a-c4a02de816e9'); //共享保存按钮
                     //设置控件是否只读
                     wzself.SetDev(ifsh);
                 } else {
                     $('#XCheckBox1').attr('enable', true); //是否置零复选框
                     $('#Label1').hide(); //已审核标签
+                    $('#Bar1').buttongroup('enable', '9f883a03-4c26-4fbe-a236-258501beb30a'); //计算市值
+                    $('#Bar1').buttongroup('enable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
+                    parent.$('#BarPubBill').buttongroup('enable', 'd858c873-f520-42af-baab-b32ec75076f3'); //共享取消按钮
+                    parent.$('#BarPubBill').buttongroup('enable', '5d549369-511b-44b5-957a-c4a02de816e9'); //共享保存按钮
                     //未审核的设置控件可读写
                     wzself.SetDev(ifsh);
                 }
