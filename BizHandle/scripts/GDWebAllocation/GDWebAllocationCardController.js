@@ -839,7 +839,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
              */
             GetGDParams: function(curYear, curCompanyCode, curDate) {
                 var wzself = this;
-                var params = [curCompanyCode, curYear, curDate, "CHANGELIST"];
+                var params = [curCompanyCode, curYear, curDate, "ALLOCATION"];
                 return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDwParams", params).then(
                     function(result) {
                         if (result) {

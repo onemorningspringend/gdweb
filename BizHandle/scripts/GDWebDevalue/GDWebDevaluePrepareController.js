@@ -22,6 +22,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
         var sldecn = 0; //数量精度默认为
         var isjzzbjcz = ""; //减值准备忽略净残值
         var CancelFlag = false; //取消的标志
+        var dsBackups = {}; //备份数据
 
         return {
             /**
@@ -117,7 +118,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         wzself.BindDevalueAssetPicking(); //减值资产帮助前事件
                         wzself.BindDevalueAssetPicked(); //减值资产帮助后事件
                         wzself.BindDevalueAssetClear(); //减值资产帮助取消事件
-                        wzself.BindExitFunc();
+                        //wzself.BindExitFunc();
                         if (Operationfssc !== "Create") {
                             var sortcode = param["SORTCODE"];
                             var assetcode = param["ASSETCODE"];
@@ -158,12 +159,31 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                     if (result) {
                                         var ServerData = result.data;
                                         var devaluedata = wzself.cardInstance().dataSource.peek();
-                                        for (var i = 0; i < devaluedata.GDJZQD.length; i++) {
-                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_ID", ServerData.GDJZQD[i]["GDJZQD_ID"]);
-                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SZ", ServerData.GDJZQD[i]["GDJZQD_SZ"]);
-                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_YTJZ", ServerData.GDJZQD[i]["GDJZQD_YTJZ"]);
-                                            wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_ZDR", ServerData.GDJZQD[i]["GDJZQD_ZDR"]);
+                                        for (var i = 0; i < ServerData.GDJZQD.length; i++) {
+                                            if (ServerData.GDJZQD[i]["GDJZQD_ZCBH"] == devaluedata.GDJZQD[0]["GDJZQD_ZCBH"]) {
+                                                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ID", ServerData.GDJZQD[i]["GDJZQD_ID"]);
+                                                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_SZ", ServerData.GDJZQD[i]["GDJZQD_SZ"]);
+                                                //wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_YTJZ", ServerData.GDJZQD[i]["GDJZQD_YTJZ"]);
+                                                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZDR", ServerData.GDJZQD[i]["GDJZQD_ZDR"]);
+                                            }
                                         }
+                                        //根据市值计算实提减值
+                                        var vsSz = devaluedata.GDJZQD[0]["GDJZQD_SZ"];
+                                        var vsJz = devaluedata.GDJZQD[0]["GDJZQD_JZ"];
+                                        var vsJcz = devaluedata.GDJZQD[0]["GDJZQD_JCZ"];
+                                        var vsJzce = 0;
+                                        if (isjzzbjcz === "1") {
+                                            vsJzce = vsJz - vsSz;
+                                        } else {
+                                            vsJzce = vsJz - vsSz - vsJcz; //净值差额 ,同时减去净残值
+                                        }
+                                        var vsYtjz = devaluedata.GDJZQD[0]["GDJZQD_YTJZ"];
+                                        var vsJzst = vsJzce - vsYtjz;
+                                        if ($('#XCheckBox1').attr('checked') == 'checked' && vsJzst < 0) {
+                                            vsJzst = 0;
+                                        }
+                                        wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_YTJZ", vsJzce);
+                                        wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZZB", vsJzst);
                                     }
                                 }).fail(function(result) {
                                 $.messager.alert('提示', "无法计算市值！", 'warning');
@@ -179,12 +199,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
              */
             ReDevalue: function() {
                 var wzself = this;
-                var devaluedata = wzself.cardInstance().dataSource.peek();
-                for (var i = 0; i < devaluedata.GDJZQD.length; i++) {
-                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SJ", 0);
-                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_SZ", 0);
-                    wzself.cardInstance().dataSource.tables(0).rows(i).setValue("GDJZQD_JZZB", 0);
-                }
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_SJ", 0);
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_SZ", 0);
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZZB", 0);
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_YTJZ", 0);
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ID", " ");
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZDR", " ");
             },
             /**
              * 根据操作状态控制状态机的变化 
@@ -409,7 +429,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     }
                     var vsjz = bindingdata.GDJZQD[i]["GDJZQD_JZ"]; //净值
                     var vsjcz = bindingdata.GDJZQD[i]["GDJZQD_JCZ"]; //净残值
-                    var vsytjz = bindingdata.GDJZQD[i]["GDJZQD_YTJZ"]; //已提减值
+                    var vsytjz = bindingdata.GDJZQD[i]["GDJZQD_LJJZ"]; //已提减值
                     var vsjtcz = bindingdata.GDJZQD[i]["GDJZQD_JTCZ"]; //是否计提残值
                     if (isjzzbjcz == "1" || vsjtcz == "1") {
                         if (vsjzst > vsjz - vsytjz) {
@@ -504,7 +524,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 //非编辑或者新增的情况下控制【计算减值】和【取消减值】按钮不可用
                 if (Operationfssc !== "Create" && Operationfssc !== "Edit") {
                     $('#Bar1').buttongroup('disable', '9f883a03-4c26-4fbe-a236-258501beb30a');
-                    $('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c');
+                    //$('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c');
                 }
 
                 if (Operationfssc !== "Create") {
@@ -543,7 +563,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     $('#Label1').show(); //已审核标签
                     $("#Label1").css({ 'color': 'red' }); //设置已审核标签这三个字为红色
                     $('#Bar1').buttongroup('disable', '9f883a03-4c26-4fbe-a236-258501beb30a'); //计算市值
-                    $('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
+                    //$('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
                     parent.$('#BarPubBill').buttongroup('disable', 'd858c873-f520-42af-baab-b32ec75076f3'); //共享取消按钮
                     parent.$('#BarPubBill').buttongroup('disable', '5d549369-511b-44b5-957a-c4a02de816e9'); //共享保存按钮
                     //设置控件是否只读
@@ -552,7 +572,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     $('#XCheckBox1').attr('enable', true); //是否置零复选框
                     $('#Label1').hide(); //已审核标签
                     $('#Bar1').buttongroup('enable', '9f883a03-4c26-4fbe-a236-258501beb30a'); //计算市值
-                    $('#Bar1').buttongroup('enable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
+                    //$('#Bar1').buttongroup('enable', '13a90c33-988e-433a-98f2-49f772e84c7c'); //取消减值
                     parent.$('#BarPubBill').buttongroup('enable', 'd858c873-f520-42af-baab-b32ec75076f3'); //共享取消按钮
                     parent.$('#BarPubBill').buttongroup('enable', '5d549369-511b-44b5-957a-c4a02de816e9'); //共享保存按钮
                     //未审核的设置控件可读写
@@ -627,7 +647,9 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         return wzself.GetDevalueAsset(sortcode).then(function(assetcodestr) {
                             if (assetcodestr) {
                                 var jzzc = $(GDWebBizHandleConstants.ControllerID_ZCJZSmartHelpJZZC).adplookupbox('options').adp;
-                                var condition = "[" + wzself.ArrangeCondition(" ", "GDZCZY_DWBH", " = ", "'" + curCompanyCode + "' and GDZCZY_ZCBH in('" + assetcodestr + "')", "Express", " ", " ") + "]";
+                                var condition = "[" + wzself.ArrangeCondition(" ", "GDZCZY_DWBH", " = ", "'" + curCompanyCode + "' and (GDZCZY_ZZQJ is null or GDZCZY_ZZQJ=' ') " +
+                                    " and GDZCZY_KSQJ<='" + curGDndqj + "' and GDZCZY_ZCBH IN (select GDJZZC_ZCBH from GDJZZC" + curYear + " where GDJZZC_DWBH='" +
+                                    curCompanyCode + "' and GDJZZC_JZLB='" + sortcode + "' ) and GDZCZY_CWQR='1'   and GDZCZY_ZCBH in('" + assetcodestr + "')", "Express", " ", " ") + "]";
                                 jzzc.condition = condition;
                             }
                         })
@@ -852,7 +874,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
              */
             GetGDParams: function(curYear, curCompanyCode, curDate) {
                 var wzself = this;
-                var params = [curCompanyCode, curYear, curDate, "ASSETLIST"];
+                var params = [curCompanyCode, curYear, curDate, "DEVALUECARD"];
                 return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetDwParams", params).then(
                     function(result) {
                         if (result) {
@@ -1107,15 +1129,6 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     win.children('div.messager-button').children('a:first').focus();
                 });
             },
-            /**
-             * 绑定退出事件，删除cookie
-             */
-            BindExitFunc: function() {
-                var wzself = this;
-                $(document).on('frameclose', function() {
-                    document.cookie = '';
-                });
-            }
         }
     }
 )
