@@ -28,12 +28,10 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
         var OperationFlag = ''; //操作标志位
         var gshsxz = ""; //公司核算性质
         var dwGslb = ""; //公司类别是否法人单位
-        var DCDW = ""; //调出单位
         var DRDW = ""; //调入单位
         var isADD = "0"; //是否是新增状态 1:新增 0：其他状态
         var CancelFlag = false;
         var fsscflag = '0'; //共享中心flag 判断是否由共享中心进入
-        var aftersaveresult = {};
 
         return {
             //界面加载方法
@@ -51,6 +49,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                             onOpen: function() {},
                             onClose: function() {
                                 curCompanyCode = gsp.application.applicationContext.getParam('CURCOMPANYCODE');
+                                curCompanyName = gsp.application.applicationContext.getParam('CURCOMPANYNAME');
                                 curDate = gsp.application.applicationContext.getParam('CURDATE');
                                 curYear = curDate.substring(0, 4);
                                 return wzself.AllocateCardFormloadNormal();
@@ -84,11 +83,9 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 curDate = param["DATE"];
                 return wzself.GetGDParams(curYear, curCompanyCode, curDate).then(function() {
                     wzself.SetUiDisplay(param["OPTFLAG"]); //设置界面
-                    wzself.BindExportUnitHelp(); //绑定调出单位过滤条件
                     wzself.BindImportUnitHelp(); //绑定调入单位过滤条件
                     wzself.ExportAssetDicEntryPicking(); //调出资产帮助前事件
                     wzself.DepartDicEntryPicking(); //调入部门帮助前事件
-                    wzself.ExportUnitDictEntryPicked(); //调出单位帮助后事件
                     wzself.ImportUnitDictEntryPicked(); //调入单位帮助后事件
                     wzself.DepartDicEntryPicked(); //调入部门帮助后事件
                     wzself.ExportAssetDicEntryPicked(); //调出资产帮助后事件
@@ -103,11 +100,15 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                         var dcdwbh = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCDWBH"];
                         var dczcbh = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCZCBH"];
                         var dczcid = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCZCID"];
+                        curCompanyName = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCDWBH_LSBZDW_DWMC"];
+                        //设置调出单位的默认值(查看、编辑和新增不一样需要特殊处理)
+                        $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCDW).adplookupbox('setValue', curCompanyCode);
+                        $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCDW).adplookupbox('setText', curCompanyName);
+                        //加载下方列表数据
                         wzself.GetAssetInfoforWeb(dczcbh, dcdwbh, curDate, dczcid);
                     }
                     wzself.SetAssetsListDecn(); //设置列表相关字段的精度
                     wzself.ChangeState(); //改变状态
-                    wzself.SetUiDisplay(param["OPTFLAG"]); //设置界面
                     //return $.Deferred().resolve();
                 }).then(function() {
                     $.loaded();
@@ -120,9 +121,9 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
              */
             SetUiDisplay: function(OperationFlag) {
                 var wzself = this;
-                wzself.SetTextColor(); //设置文字颜色为黑色
+                //设置文字颜色为黑色
+                wzself.SetTextColor();
                 if (OperationFlag == "Edit") {
-                    $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCDW).adplookupbox('readonly', true); //编辑时调入单位只读
                     $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCZC).adplookupbox('readonly', true); //编辑时掉入资产只读
                     $(GDWebBizHandleConstants.ControllerID_ZCDBDateBoxDBRQ).my97datebox('disable'); //编辑时调拨日期只读
                 }
@@ -233,21 +234,6 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 }
             },
             /**
-             * 保存后操作
-             */
-            AfterSave: function() {
-                var wzself = this;
-                wzself.notifyGlobalParent();
-                return function() {
-                    if (JSON.stringify(aftersaveresult) === "{}") {
-                        aftersaveresult = wzself.cardInstance().dataSource.tables(0).rows(0).getValue("GDZCDB_ID");
-                    }
-                    return wzself.loadData(aftersaveresult);
-                }().then(function() {
-                    $.loaded();
-                });
-            },
-            /**
              * 取消方法
              */
             AllocateCardCancel: function() {
@@ -319,6 +305,8 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 var wzself = this;
                 //var param = parseUrlParams(window.location); //好像不需要再重新获取
                 curUserName = gsp.rtf.context.get('UserName'); //获取用户名字
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DCDWBH", curCompanyCode); //调出单位
+                wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DCDWBH_LSBZDW_DWMC", curCompanyName); //调出单位名称
                 wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DBRQ", curDate); //调拨日期
                 wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_CWQR", "0"); //合并确认
                 wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DCCWQR", "0"); //调出确认
@@ -342,17 +330,6 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 $(GDWebBizHandleConstants.ControllerID_ZCDBTextBoxDRZC).text('textbox').css('color', 'black');
                 $(GDWebBizHandleConstants.ControllerID_ZCDBTextBoxSPH).text('textbox').css('color', 'black');
                 $(GDWebBizHandleConstants.ControllerID_ZCDBTextBoxZY).text('textbox').css('color', 'black');
-            },
-            /**
-             * 调出单位绑定帮助过滤条件
-             */
-            BindExportUnitHelp: function() {
-                var wzself = this;
-                var exportUnitHelp = $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCDW).adplookupbox('options').adp;
-                var condition = "[" + wzself.ArrangeCondition(" ", "LSBZDW_QYBZ", " = ", " '1' and (LSBZDW_TYBZ = '0' OR LSBZDW_TYBZ = '1' and LSBZDW_TYND > '" + curYear + "') AND LSBZDW_GSXZ<>'1' " +
-                    " AND EXISTS (select 1 from SYDOMFP where SYDOMFP_HSDW=LSBZDW_DWBH and SYDOMFP_MKID='GD') AND LSBZDW_ACCOUNT='1' and LSBZDW_DWNM like (SELECT LSBZDW_DWNM{DAE~JoinSymbol}'%' FROM " +
-                    " LSBZDW WHERE LSBZDW_DWBH='" + curCompanyCode + "')", "Express", " ", " ") + "]";
-                exportUnitHelp.condition = condition;
             },
             /**
              * 调入单位绑定帮助过滤条件
@@ -489,29 +466,6 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 })
             },
             /**
-             * 调出单位帮助后事件
-             */
-            ExportUnitDictEntryPicked: function() {
-                var wzself = this;
-                $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCDW).on('OnDictEntryPicked', function(option, dataRow) {
-                    //检查调出单位期间是否等同于登陆期间
-                    var exportUnit = dataRow[0].LSBZDW_DWBH;
-                    var exportUnitName = dataRow[0].LSBZDW_DWMC;
-                    wzself.context.setParam('DCDW', exportUnit); //更新单位编号全局变量
-                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DCDWBH", exportUnit); //需要及时更新数据源上的数据
-                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DCDWBH_LSBZDW_DWMC", exportUnitName); //需要及时更新数据源上的数据
-                    return wzself.GetGDParams(curYear, exportUnit, curDate).then(function() {
-                        //var param = parseUrlParams(window.location);//此处不需要再重新获取一遍了
-                        var dlqj = curDate.substring(4, 6);
-                        if (dlqj == currGDqj) {
-                            wzself.BindAssetSmartHelp(exportUnit, curGDndqj); //切换单位后重新绑定调出资产的帮助
-                        } else {
-                            $.messager.alert('提示', "[" + exportUnitName + "]单位的固定资产期间非当前登录期间，请检查！", 'warning');
-                        }
-                    })
-                })
-            },
-            /**
              * 调入单位帮助后事件
              */
             ImportUnitDictEntryPicked: function() {
@@ -554,7 +508,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCZC).on('OnDictEntryPicked', function(option, dataRow) {
                     var aseetCode = dataRow[0].GDZCZY_ZCBH;
                     var assetName = dataRow[0].GDZCZY_ZCMC;
-                    var exportUnit = wzself.context.getParam('DCDW');
+                    var exportUnit = curCompanyCode;
                     wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCZCBH"] = aseetCode;
                     wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DCZCBH_GDZCZY_ZCMC"] = assetName;
                     $(GDWebBizHandleConstants.ControllerID_ZCDBSmartHelpDCZC).adplookupbox('setValue', aseetCode); //为什么帮助后事件还得自己重新加一下
@@ -694,7 +648,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     $.messager.alert('提示', AssetCode + "资产调拨数量超过资产数量，请检查！", 'warning');
                     return false;
                 }
-                if (assetSL.length > 12) {
+                if (assetSL > 999999999999) {
                     $.messager.alert('提示', AssetCode + "资产调拨数量不能超过12位，请修改！", 'warning');
                     return false;
                 }
@@ -707,7 +661,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     $.messager.alert('提示', AssetCode + "资产未输入调入折旧月份！", 'warning');
                     return false;
                 }
-                if (dt["GDZCZY_DRZJYF"].length > 12) {
+                if (dt["GDZCZY_DRZJYF"] > 999999999999) {
                     $.messager.alert('提示', AssetCode + "资产折旧月份不能超过12位，请修改！", 'warning');
                     return false;
                 }
@@ -759,6 +713,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 rowNew["GDZCDB_DCDWBH"] = row["GDZCDB_DCDWBH"];
                 rowNew["GDZCDB_DRBM"] = row["GDZCDB_DRBM"];
                 rowNew["GDZCDB_SPBH"] = row["GDZCDB_SPBH"];
+                rowNew["GDZCDB_SPH"] = row["GDZCDB_SPH"];
                 rowNew["GDZCDB_ZY"] = row["GDZCDB_ZY"];
                 rowNew["GDZCDB_ZDR"] = row["GDZCDB_ZDR"];
                 rowNew["GDZCDB_FLID"] = row["GDZCDB_FLID"];
