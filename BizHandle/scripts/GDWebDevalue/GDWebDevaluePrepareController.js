@@ -523,7 +523,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
 
                 //非编辑或者新增的情况下控制【计算减值】和【取消减值】按钮不可用
                 if (Operationfssc !== "Create" && Operationfssc !== "Edit") {
-                    $('#Bar1').buttongroup('disable', '9f883a03-4c26-4fbe-a236-258501beb30a');
+                    $('#Bar1').buttongroup('disable', '59fefefd-ea39-44a2-b502-34194eaf9358');
                     //$('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c');
                 }
 
