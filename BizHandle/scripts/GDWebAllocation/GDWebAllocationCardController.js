@@ -549,7 +549,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 return wzself.context.injector.get("$dataServiceProxy").invokeMethod("Genersoft.FI.GD.BizHandleCore.GDWeb.GDWebPublicManagement", "GetAssetInfofroWeb", params).then(
                     function(result) {
                         if (result) {
-                            wzself.BindingAssetsList(result); //重新载入数据
+                            wzself.BindingAssetsListforView(result); //重新载入数据
                             wzself.context.setParam('dataforsave', result); //保存ds供保存使用
                             //绑定资产信息
                             $(GDWebBizHandleConstants.ControllerID_ZCDBDataGridZCMX).datagrid('loadData', {
@@ -592,6 +592,40 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLJZJ"] = ds.data.Table[0]["F_LJZJ"];
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCJCZ"] = ds.data.Table[0]["F_JCZ"];
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRJCZ"] = ds.data.Table[0]["F_JCZ"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ZCYZ"] = ds.data.Table[0]["F_ZCYZ"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_LJZJ"] = ds.data.Table[0]["F_LJZJ"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_JCZ"] = ds.data.Table[0]["F_JCZ"];
+            },
+            /**
+             * 绑定资产列表
+             */
+            BindingAssetsListforView: function(ds) {
+                var wzself = this;
+                var dbsl = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DBSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ID"] = ds.data.Table[0]["GDZCZY_ID"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ZCBH"] = ds.data.Table[0]["GDZCZY_ZCBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DWBH"] = ds.data.Table[0]["GDZCZY_DWBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ZCMC"] = ds.data.Table[0]["GDZCZY_ZCMC"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCSL"] = dbsl;
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ZCSL"] = ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_BGXH"] = ds.data.Table[0]["GDZCZY_BGXH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DBSL"] = dbsl;
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLB"] = ds.data.Table[0]["GDZCZY_LBBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLB_GDZCLB_LBMC"] = ds.data.Table[0]["GDZCLB_LBMC"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLY"] = ds.data.Table[0]["GDZCZY_LYBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLY_GDLYZD_LYMC"] = ds.data.Table[0]["GDLYZD_LYMC"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCZJBH"] = ds.data.Table[0]["GDZCZY_ZJBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCZJBH_GDZJFF_ZJMC"] = ds.data.Table[0]["GDZJFF_ZJMC"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRZJBH"] = ds.data.Table[0]["GDZCZY_ZJBH"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRZJBH_GDZJFF_ZJMC"] = ds.data.Table[0]["GDZJFF_ZJMC"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCZJYF"] = ds.data.Table[0]["GDZCZY_ZJYF"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRZJYF"] = wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCDB_DRZJYF"]
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DBYZ"] = ds.data.Table[0]["F_ZCYZ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRYZ"] = ds.data.Table[0]["F_ZCYZ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCLJZJ"] = ds.data.Table[0]["F_LJZJ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLJZJ"] = ds.data.Table[0]["F_LJZJ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCJCZ"] = ds.data.Table[0]["F_JCZ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
+                wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRJCZ"] = ds.data.Table[0]["F_JCZ"] * dbsl / ds.data.Table[0]["GDZCZY_ZCSL"];
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_ZCYZ"] = ds.data.Table[0]["F_ZCYZ"];
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_LJZJ"] = ds.data.Table[0]["F_LJZJ"];
                 wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_JCZ"] = ds.data.Table[0]["F_JCZ"];
@@ -645,7 +679,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     return false;
                 }
                 if (assetSL > dt["GDZCZY_ZCSL"]) {
-                    $.messager.alert('提示', AssetCode + "资产调拨数量超过资产数量，请检查！", 'warning');
+                    $.messager.alert('提示', AssetCode + "资产调拨数量超过资产数量" + dt["GDZCZY_ZCSL"] + "，请检查！", 'warning');
                     return false;
                 }
                 if (assetSL > 999999999999) {
@@ -705,6 +739,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 var ds = { "Table1": [{}] };
                 var rowNew = ds["Table1"][0];
                 rowNew["GDZCDB_ID"] = row["GDZCDB_ID"];
+                rowNew["GDZCZY_ID"] = row["GDZCZY_ID"];
                 rowNew["GDZCDB_DBRQ"] = wzself.FormatDate8(row["GDZCDB_DBRQ"]);
                 rowNew["GDZCDB_SBBH"] = row["GDZCDB_SBBH"];
                 rowNew["GDZCDB_ZCBH"] = row["GDZCDB_DCZCBH"];
@@ -717,7 +752,8 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 rowNew["GDZCDB_ZY"] = row["GDZCDB_ZY"];
                 rowNew["GDZCDB_ZDR"] = row["GDZCDB_ZDR"];
                 rowNew["GDZCDB_FLID"] = row["GDZCDB_FLID"];
-                rowNew["GDZCDB_DBSL"] = row["GDZCDB_DBSL"];
+                rowNew["GDZCDB_DBSL"] = row["GDZCZY_DCSL"];
+                rowNew["GDZCZY_ZCSL"] = row["GDZCZY_ZCSL"];
                 rowNew["GDZCDB_DBYZ"] = row["GDZCDB_DBYZ"];
                 rowNew["GDZCDB_ZCMC"] = row["GDZCZY_ZCMC"];
                 rowNew["GDZCDB_DRLB"] = row["GDZCDB_DRLB"];
@@ -785,6 +821,20 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                         if (field == "GDZCZY_DRZJYF") {
                             var drzjyf = $(GDWebBizHandleConstants.ControllerID_ZCDBDataGridZCMX).datagrid('getData').rows[0]["GDZCZY_DRZJYF"];
                             wzself.cardInstance().dataSource.tables(0).rows(0).peek()["GDZCDB_DRZJYF"] = drzjyf;
+                        }
+                        if (field == "GDZCZY_DBSL") {
+                            var ds = wzself.context.getParam('dataforsave');
+                            var dbsl = $(GDWebBizHandleConstants.ControllerID_ZCDBDataGridZCMX).datagrid('getData').rows[0]["GDZCZY_DBSL"];
+                            var dbzsl = ds.data.Table[0]["GDZCZY_ZCSL"];
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCSL"] = dbsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DBSL"] = dbsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DBYZ"] = (ds.data.Table[0]["F_ZCYZ"]) * dbsl / dbzsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRYZ"] = (ds.data.Table[0]["F_ZCYZ"]) * dbsl / dbzsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCLJZJ"] = (ds.data.Table[0]["F_LJZJ"]) * dbsl / dbzsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRLJZJ"] = (ds.data.Table[0]["F_LJZJ"]) * dbsl / dbzsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DCJCZ"] = (ds.data.Table[0]["F_JCZ"]) * dbsl / dbzsl;
+                            wzself.cardInstance().dataSource.peek().GDZCDB[0]["GDZCZY_DRJCZ"] = (ds.data.Table[0]["F_JCZ"]) * dbsl / dbzsl;
+                            $('#XDataGridZCMZ').datagrid('refreshRow', 0);
                         }
                     });
                 }

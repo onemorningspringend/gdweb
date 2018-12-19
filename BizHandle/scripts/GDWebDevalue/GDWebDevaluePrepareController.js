@@ -177,7 +177,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                         } else {
                                             vsJzce = vsJz - vsSz - vsJcz; //净值差额 ,同时减去净残值
                                         }
-                                        var vsYtjz = devaluedata.GDJZQD[0]["GDJZQD_YTJZ"];
+                                        var vsYtjz = devaluedata.GDJZQD[0]["GDJZQD_LJJZ"];
                                         var vsJzst = vsJzce - vsYtjz;
                                         if ($('#XCheckBox1').attr('checked') == 'checked' && vsJzst < 0) {
                                             vsJzst = 0;
@@ -349,6 +349,15 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 //获取数据源上的基本数据信息
                 var sortcode = wzself.context.getParam('curSortCode');
                 var bindingdata = wzself.cardInstance().dataSource.peek();
+                if (isjzzbjcz === "1") {
+                    bindingdata.GDJZQD[0]["GDJZQD_YTJZ"] = bindingdata.GDJZQD[0]["GDJZQD_JZ"] - bindingdata.GDJZQD[0]["GDJZQD_SZ"];
+                } else {
+                    bindingdata.GDJZQD[0]["GDJZQD_YTJZ"] = bindingdata.GDJZQD[0]["GDJZQD_JZ"] - bindingdata.GDJZQD[0]["GDJZQD_SZ"] - bindingdata.GDJZQD[0]["GDJZQD_JCZ"]; //净值差额 ,同时减去净残值
+                }
+                bindingdata.GDJZQD[0]["GDJZQD_JZZB"] = bindingdata.GDJZQD[0]["GDJZQD_YTJZ"] - bindingdata.GDJZQD[0]["GDJZQD_LJJZ"];
+                if ($('#XCheckBox1').attr('checked') == 'checked' && vsJzst < 0) {
+                    bindingdata.GDJZQD[0]["GDJZQD_JZZB"] = 0;
+                }
                 var bindingdatalen = wzself.cardInstance().dataSource.peek().GDJZQD.length;
 
                 if (bindingdata !== null && bindingdatalen > 0) {
@@ -443,6 +452,10 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                 vsjzst + "；现值=" + ((vsjz - vsjcz) - vsytjz) + "", 'warning');
                             return false;
                         }
+                    }
+                    if (bindingdata.GDJZQD[i]["GDJZQD_BZ"].length >= 127) {
+                        $.messager.alert('提示', "备注的长度过长，请修改！", 'warning');
+                        return false;
                     }
                 }
                 return true;
@@ -716,6 +729,8 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                 }
                                 assetcodestr = assetcodestr.substring(0, assetcodestr.length - 3);
                                 return assetcodestr;
+                            } else {
+                                return " ";
                             }
                         }
                     }).fail(function(result) {
