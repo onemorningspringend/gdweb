@@ -247,7 +247,7 @@ window["invoker"].FSSC_refresh = function() {
     }
     ();
 
-function GDWEBREDUCEASSET_ListSubmitBefore(djnm, djlx, contextFSSC) {
+function GDWEBDEVALUEPREPARE_ListSubmitBefore(djnm, djlx, contextFSSC) {
     var def = $.Deferred();
     def.resolve(true);
     return def.promise();

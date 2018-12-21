@@ -63,6 +63,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 $.loading();
                 var param = parseUrlParams(window.location); //从URL解析出的参数
                 curUserName = gsp.rtf.context.get('UserName'); //获取用户名字
+                curUserID = gsp.rtf.context.get('UserID'); //获取用户ID
                 curDate = wzself.FormatDate8(gsp.rtf.context.get('BizDate')); //获取当前业务日期
                 if (fsscflag === "1" && Operationfssc === "Create") {
                     param["YEAR"] = curYear;
@@ -513,6 +514,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         rowNew["curDate"] = curDate;
                         rowNew["Saveflag"] = "1";
                         rowNew["sortcode"] = sortcode;
+                        rowNew["curUserID"] = curUserID;
                     }
                 }
                 return ds;

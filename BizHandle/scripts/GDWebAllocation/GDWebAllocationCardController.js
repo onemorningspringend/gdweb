@@ -13,6 +13,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
         var authorityCondi = ""; //权限条件
         var curUserName = ""; //用户显示名称
         var curUserCode = ""; //用户名（登陆用户名）
+        var curUserID = ""; //用户唯一标识
         var sfNjwc = ""; //是否年结完成
         var sfCswc = ""; //是否初始完成
         var currGDqj = ""; //固定会计期间
@@ -66,6 +67,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
              */
             AllocateCardFormloadNormal: function() {
                 var wzself = this;
+                curUserID = gsp.rtf.context.get('UserID'); //获取用户ID
                 loading = true;
                 $.loading();
                 var param = parseUrlParams(window.location);
@@ -754,7 +756,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                 rowNew["GDZCDB_FLID"] = row["GDZCDB_FLID"];
                 rowNew["GDZCDB_DBSL"] = row["GDZCZY_DCSL"];
                 rowNew["GDZCZY_ZCSL"] = row["GDZCZY_ZCSL"];
-                rowNew["GDZCDB_DBYZ"] = row["GDZCDB_DBYZ"];
+                rowNew["GDZCDB_DBYZ"] = row["GDZCZY_DBYZ"];
                 rowNew["GDZCDB_ZCMC"] = row["GDZCZY_ZCMC"];
                 rowNew["GDZCDB_DRLB"] = row["GDZCDB_DRLB"];
                 rowNew["GDZCDB_DRLY"] = row["GDZCDB_DRLY"];
@@ -764,6 +766,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     rowNew["GDZCDB_DBRQ"] = row["GDZCDB_DBRQ"];
                     rowNew["curDate"] = curDate;
                     rowNew["Saveflag"] = "1";
+                    rowNew["curUserID"] = curUserID;
                 }
                 return ds;
             },

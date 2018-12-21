@@ -50,6 +50,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
     var editflag = false;
     var Spflag = "0"; //审批标志 解决按钮问题
     var emptydata = []; //空白数据 供取消使用
+    var curUserID = ""; //用户ID
 
 
     return {
@@ -82,6 +83,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
         NormalFrm_Load: function() {
             var cardself = this;
             $.loading();
+            curUserID = gsp.rtf.context.get('UserID'); //获取用户ID
             URLparams = parseUrlParams(window.location);
             if (fsscflag !== "1") {
                 curYear = URLparams["YEAR"] //= "2007";//666
@@ -423,6 +425,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                 dataParams["JeDecn"] = currJeDecn;
                 dataParams["SlDecn"] = currSlDecn;
                 dataParams["ZjlDecn"] = currZjlDecn;
+                dataParams["curUserID"] = curUserID;
                 ds["dataParams"] = [];
                 ds["dataParams"][0] = dataParams;
                 cardself.SetFSSCParams(ds);

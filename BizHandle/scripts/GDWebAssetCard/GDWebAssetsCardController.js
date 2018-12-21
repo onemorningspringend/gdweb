@@ -12,6 +12,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
         var curYear = ''; // 年度
         var curPeriod = ''; // 期间
         var curDate = ''; // 8位日期
+        var curUserID = ''; //用户ID
         var formFlag = 'A'; // 界面标识 A增加 E编辑 F复制 C确认 Q查询
         var isInitAsset = '0'; // 是否初始资产 formFlag=Q时不需处理
         var assetID = ''; // 资产ID
@@ -125,6 +126,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
             //界面加载（表单加载后） 单位编号 年度 期间 日期 动作标识 (资产ID 资产编号 以ID查询还是以编号查询) (复制的资产ID 是否复制附属设备 是否复制附件)
             CardFormloadNormal: function() {
                 cardSelf = this;
+                curUserID = gsp.rtf.context.get('UserID'); //获取用户ID
                 //获取上个界面传递的参数
                 return function() {
                     if (fsscflag === "1" && firstopen !== '0') {
@@ -936,6 +938,7 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
                 datarow["mulSaveFixCode"] = mulSaveFixCode;
                 datarow["mulSaveStartRunCode"] = mulSaveStartRunCode;
                 datarow["mulSaveCodeLen"] = mulSaveCodeLen;
+                datarow["curUserID"] = curUserID;
                 datarow["zcid"] = tmpAssetDs["GDZCZY"][0]["GDZCZY_ID"];
                 $.loaded();
                 return $.Deferred().resolve(fsscdata);
