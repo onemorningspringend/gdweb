@@ -1449,7 +1449,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             }
             if (SYDW) {
                 if (smartHelpInfo["GDZCZY_SYBM"]) {
-                    smartHelpInfo["GDZCZY_SYBM"]['strHelpCondi'][0]['DisplayValue'] = smartHelpInfo["GDZCZY_SYBM"]['strHelpCondi'][0]['Value'] = SYDW;
+                    smartHelpInfo["GDZCZY_SYBM"]['strHelpCondi'][0]['DisplayValue'] = smartHelpInfo["GDZCZY_SYBM"]['strHelpCondi'][0]['Value'] = "'" + SYDW + "'";
                 }
                 if (smartHelpInfo["GDZCZY_SYR"]) {
                     smartHelpInfo["GDZCZY_SYR"]['strHelpCondi'][0]['DisplayValue'] = smartHelpInfo["GDZCZY_SYR"]['strHelpCondi'][0]['Value'] = SYDW;

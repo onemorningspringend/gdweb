@@ -23,6 +23,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
         var isjzzbjcz = ""; //减值准备忽略净残值
         var CancelFlag = false; //取消的标志
         var dsBackups = {}; //备份数据
+        var state = ""; //界面状态
 
         return {
             /**
@@ -221,11 +222,17 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                         }]);
                         break;
                     case "Edit":
+                        state = "1";
                         wzself.context.view().transitInvoke('Modify', [{
                             target: 'GDWebDevaluePrepareController',
                             methodName: 'DevalueCardEdit',
                             params: []
                         }]);
+                        wzself.SetCalBtn(state);
+                        break;
+                    case "View":
+                        state = "0";
+                        wzself.SetCalBtn(state);
                         break;
                     default:
                         break;
@@ -236,12 +243,12 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
              */
             DevalueCardCreate: function() {
                 var wzself = this;
+                state = "1";
+                wzself.SetCalBtn(state);
                 $.loading();
                 loading = true;
                 isADD = "1";
-                return wzself.create().then(function() {
-
-                }).then(function() {
+                return wzself.create().then(function() {}).then(function() {
                     dsBackups = $.extend(true, {}, wzself.cardInstance().dataSource.tables(0).rows(0).peek());
                     $.loaded();
                     loading = false;
@@ -256,6 +263,8 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
              */
             DevalueCardEdit: function() {
                 var wzself = this;
+                state = "1";
+                wzself.SetCalBtn(state);
                 $.loading();
                 loading = true;
                 isADD = "0";
@@ -287,9 +296,10 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
              */
             DevalueCardCancel: function() {
                 var wzself = this;
+                state = "0";
+                wzself.SetCalBtn(state);
                 var param = parseUrlParams(window.location); //从URL解析出的参数
                 loading = true;
-
 
                 if (CancelFlag === false && param["OPTFLAG"] === "Create" && fsscflag !== "1") {
                     loading = false;
@@ -327,7 +337,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 }
                 var shr = wzself.cardInstance().dataSource.peek().GDJZQD[0].GDJZQD_SHR;
                 if (shr !== null && shr !== "" && shr !== " ") {
-                    $.messager.alert('提示', "该减值已审核，不能编辑！", 'warning');
+                    $.messager.alert('提示', "该减值已审核，不能删除！", 'warning');
                     $.loaded();
                     loading = false;
                     return $.Deferred().reject(false);
@@ -530,17 +540,26 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     return;
                 }
                 if (sfJtzj == "0") {
-                    $.messager.alert('提示', "本月没有计提折旧，不能减值！", 'warning');
-                    return;
+                    return wzself.OneButtonConfirm('提示', "本月没有计提折旧，不能减值！").then(
+                        function() {
+                            //if (product == "FSSC") {
+                            if (gsp.rtf.context.get("FrameType") == "0") {
+                                var rt = parent.gsp.rtf.childIframe.close();
+                                if (!rt) {
+                                    parent.gsp.rtf.func.close();
+                                } else {
+                                    return false;
+                                }
+                            } else {
+                                var menuID = parent.gsp.rtf.query.get("funcid");
+                                return gsp.rtf.func.close(menuID);
+                            }
+                            //}
+                        }
+                    )
                 }
                 wzself.SetGridJecn();
                 $(".numberbox").find(".textbox-text").css("text-align", "right"); //设置数值型的靠右边显示
-
-                //非编辑或者新增的情况下控制【计算减值】和【取消减值】按钮不可用
-                if (Operationfssc !== "Create" && Operationfssc !== "Edit") {
-                    $('#Bar1').buttongroup('disable', '59fefefd-ea39-44a2-b502-34194eaf9358');
-                    //$('#Bar1').buttongroup('disable', '13a90c33-988e-433a-98f2-49f772e84c7c');
-                }
 
                 if (Operationfssc !== "Create") {
                     //减值类别帮助
@@ -592,6 +611,13 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     parent.$('#BarPubBill').buttongroup('enable', '5d549369-511b-44b5-957a-c4a02de816e9'); //共享保存按钮
                     //未审核的设置控件可读写
                     wzself.SetDev(ifsh);
+                }
+            },
+            SetCalBtn: function(state) {
+                if (state === "0") {
+                    $('#Bar1').buttongroup('disable', '59fefefd-ea39-44a2-b502-34194eaf9358'); //计算市值
+                } else {
+                    $('#Bar1').buttongroup('enable', '59fefefd-ea39-44a2-b502-34194eaf9358'); //计算市值
                 }
             },
             /**
@@ -1029,6 +1055,101 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     date = date.substring(0, 4) + date.substring(5, 7) + date.substring(8, 10);
                     return date;
                 }
+            },
+            //重写方法，只显示一个按钮
+            OneButtonConfirm: function(title, message) {
+                var wzself = this;
+                var defer = $.Deferred(),
+                    t = title ? title : ctrlLang.delConfirmT,
+                    m = message ? message : ctrlLang.delConfirmM;
+
+                //解决confirm框右上角关闭按钮的点击事件，捕获到是defer的结果
+                $.fn.window.defaults.closable = false;
+
+                wzself.Oneconfirm(t, m, function(r) {
+                    if (r === "1") {
+                        defer.resolve();
+                    } else {
+                        defer.reject();
+                    }
+                });
+
+                $.fn.window.defaults.closable = false;
+
+                return defer;
+            },
+            //形成一个按钮弹窗的方法
+            Oneconfirm: function(title, msg, fn) {
+                var content = '<div class="messager-icon messager-question"></div>' +
+                    '<div>' + msg + '</div>' +
+                    '<div style="clear:both;"/>';
+                var buttons = {};
+                buttons["确定"] = function() {
+                    win.window('close');
+                    if (fn) {
+                        fn("1");
+                        return false;
+                    }
+                };
+
+                var win = $('<div class="messager-body"></div>').appendTo('body');
+                win.append(content);
+                if (buttons) {
+                    var tb = $('<div class="messager-button"></div>').appendTo(win);
+                    for (var label in buttons) {
+                        $('<a></a>').attr('href', 'javascript:void(0)').text(label)
+                            .css('margin-left', 10)
+                            .bind('click', eval(buttons[label]))
+                            .appendTo(tb).linkbutton();
+                    }
+                }
+                win.window({
+                    title: title,
+                    noheader: (title ? false : true),
+                    width: 300,
+                    height: 'auto',
+                    modal: true,
+                    collapsible: false,
+                    minimizable: false,
+                    maximizable: false,
+                    resizable: false,
+                    onClose: function() {
+                        setTimeout(function() {
+                            win.window('destroy');
+                        }, 100);
+                    }
+                });
+                win.window('window').addClass('messager-window');
+                win.children('div.messager-button').children('a:first').focus();
+
+                if (win) {
+                    var msgdiv = win.find('.messager-icon').next();
+                    if (msgdiv) {
+                        var msgHeight = msgdiv.outerHeight();
+                        if (msgHeight < 32) {
+                            msgdiv.css({ "lineHeight": "32px" });
+                        }
+                    }
+                }
+                win.on('keyup', function(e) {
+                    if (e.which == 32 || e.which == 13) {
+                        win.window('close');
+                        if (fn) {
+                            fn(true);
+                            return false;
+                        }
+                    }
+
+                    if (e.which == 27) { // esc
+                        win.window('close');
+                        if (fn) {
+                            fn(false);
+                            return false;
+                        }
+                    }
+                }).on('click', function() {
+                    win.children('div.messager-button').children('a:first').focus();
+                });
             },
             /**
              * 三个按钮的选择框 “1”为是，“0”为否
