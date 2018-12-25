@@ -102,34 +102,15 @@ window["invoker"].FSSC_save = function() {
         }
     }
     ();
-/* //保存后操作
+//保存后操作
 window["invoker"].FSSC_saveafter = function() {
         return function() {
             var def = $.Deferred();
-            var selfinner = $('[data-view="Form1"]').data('viewInstance');
-            return selfinner.context.invoke([{
-                target: 'GDWebAllocationCardController',
-                methodName: 'AfterSave',
-                params: []
-            }]).then(function() {
-                selfinner.context.view().transitInvoke('Save', [{
-                    target: '',
-                    methodName: '',
-                    params: []
-                }]);
-                selfinner.context.view().transitInvoke('Save', [{
-                    target: '',
-                    methodName: '',
-                    params: []
-                }]);
-            });
-
             def.resolve(true);
-
             return def.promise();
         }
     }
-    (); */
+    ();
 //删除操作
 window["invoker"].FSSC_delete = function() {
         return function() {

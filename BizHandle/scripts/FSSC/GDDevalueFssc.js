@@ -101,6 +101,15 @@ window["invoker"].FSSC_save = function() {
         }
     }
     ();
+//保存后操作
+window["invoker"].FSSC_saveafter = function() {
+        return function() {
+            var def = $.Deferred();
+            def.resolve(true);
+            return def.promise();
+        }
+    }
+    ();
 //删除操作
 window["invoker"].FSSC_delete = function() {
         return function() {
