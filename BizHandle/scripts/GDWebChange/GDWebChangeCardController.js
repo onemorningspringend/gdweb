@@ -51,6 +51,7 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
     var Spflag = "0"; //审批标志 解决按钮问题
     var emptydata = []; //空白数据 供取消使用
     var curUserID = ""; //用户ID
+    var tempdataID = [];
 
 
     return {
@@ -385,6 +386,15 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
             // this.SetChangeItemToStructure();
 
         },
+
+        PrintCard: function() {
+            var cardSelf = this;
+            var modelID = cardSelf.defaultModel().dataModelID;
+            var dataID = cardSelf.dataSourceHelper.getPrimaryValue(this.cardInstance());
+            cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [dataID, modelID, "", "", ""] });
+            //cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [tempdataID[1], modelID, "", "", ""] });
+        },
+
         /**
          * 共享中心模式下的保存方法
          */
@@ -888,6 +898,11 @@ gsp.module("gsp.app").controller("GDWebChangeCardController", "CardController", 
                     }
                     var dss = {}; //新建一个对象以保证表名相同
                     dss.GDBGJL = ds.GDBGD;
+                    tempdataID = [ds.GDBGZCXM.length];
+                    for (var i = 0; i < ds.GDBGZCXM.length; i++) {
+                        tempdataID[i] = ds.GDBGZCXM[i]["GDBGJL_ID"];
+                    }
+                    dss.GDBGJL[0]["GDBGJL_ID"] = ds.GDBGZCXM[0]["GDBGJL_ID"];
                     cardself.cardInstance().dataSource = gsp.dataSource(dss, {
                         name: cardself.cardInstance().dataSourceName,
                         schema: cardself.cardInstance().schema

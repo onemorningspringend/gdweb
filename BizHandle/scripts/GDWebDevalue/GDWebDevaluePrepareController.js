@@ -146,10 +146,10 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     return $.Deferred().reject();
                 }
                 var sortcodefunc = wzself.context.getParam('curSortCodeFunc');
-                if (sortcodefunc == null || sortcodefunc == "" || sortcodefunc == " ") {
-                    $.messager.alert('提示', "此减值类别未定义公式！", 'warning');
-                    return $.Deferred().reject();
-                }
+                // if (sortcodefunc == null || sortcodefunc == "" || sortcodefunc == " ") {
+                //     $.messager.alert('提示', "此减值类别未定义公式！", 'warning');
+                //     return $.Deferred().reject();
+                // }
                 var devaluedata = wzself.cardInstance().dataSource.peek();
                 var devaluedatalen = wzself.cardInstance().dataSource.peek().GDJZQD.length;
                 if (devaluedata !== null && devaluedatalen > 0) {
@@ -188,7 +188,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                                         wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZZB", vsJzst);
                                     }
                                 }).fail(function(result) {
-                                $.messager.alert('提示', "无法计算市值！", 'warning');
+                                //$.messager.alert('提示', "无法计算市值！", 'warning');
                                 return $.Deferred().reject();
                             })
                         }).fail(function() {

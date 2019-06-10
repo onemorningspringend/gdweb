@@ -666,6 +666,14 @@ gsp.module("gsp.app").controller("GDWebReduceCardController", "CardController", 
                     });
             }
         },
+
+        PrintCard: function() {
+            var cardSelf = this;
+            var modelID = cardSelf.defaultModel().dataModelID;
+            var dataID = cardSelf.dataSourceHelper.getPrimaryValue(this.cardInstance());
+            cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [dataID, modelID, "", "", ""] });
+        },
+
         /**
          * 联查打开资产卡片
          * @param  {String} zcId - 资产ID

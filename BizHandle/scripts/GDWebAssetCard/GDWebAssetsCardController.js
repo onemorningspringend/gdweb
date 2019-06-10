@@ -755,6 +755,13 @@ gsp.module('gsp.app').controller('GDWebAssetsCardController', 'CardController',
             },
             //#endregion
 
+            PrintCard: function() {
+                var cardSelf = this;
+                var modelID = cardSelf.defaultModel().dataModelID;
+                var dataID = cardSelf.dataSourceHelper.getPrimaryValue(this.cardInstance());
+                cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [dataID, modelID, "", "", ""] });
+            },
+
             //#region 获取编号
             //获取最新编号:项目空值直接停止
             GetNewAssetCode: function(itemEmptyStop) {
