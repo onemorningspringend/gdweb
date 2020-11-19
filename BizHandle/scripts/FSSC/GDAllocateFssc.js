@@ -236,10 +236,19 @@ window["invoker"].FSSC_fhback = function() {
 
 //打印
 window["invoker"].FSSC_print = function() {
-        return function() {
+        /*return function() {
             var def = $.Deferred();
             var selfinner = $('[data-view="Form1"]').data('viewInstance');
             return def.promise();
+        }*/
+        return function() {
+            var gdself = $('[data-view="Form1"]').data('viewInstance');
+            gdself.context.invoke([{
+                target: 'GDWebAllocationCardController',
+                methodName: 'PrintCard',
+                params: []
+            }]);
+            return $.Deferred().resolve([true]);
         }
     }
     ();
