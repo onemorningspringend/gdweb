@@ -519,6 +519,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     rowNew["GDJZQD_LJJZ"] = bindingdata.GDJZQD[i]["GDJZQD_LJJZ"];
                     rowNew["GDJZQD_JCZ"] = bindingdata.GDJZQD[i]["GDJZQD_JCZ"];
                     rowNew["GDJZQD_JTCZ"] = bindingdata.GDJZQD[i]["GDJZQD_JTCZ"];
+                    rowNew["GDJZQD_ZHJZ"] = bindingdata.GDJZQD[i]["GDJZQD_ZHJZ"];
 
                     if (fsscflag === "1") {
                         rowNew["curDate"] = curDate;
@@ -528,6 +529,13 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     }
                 }
                 return ds;
+            },
+            PrintCard: function() {
+                var cardSelf = this;
+                var modelID = cardSelf.defaultModel().dataModelID;
+                var dataID = cardSelf.dataSourceHelper.getPrimaryValue(this.cardInstance());
+                cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [dataID, modelID, "", "", ""] });
+                //cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [tempdataID[1], modelID, "", "", ""] });
             },
             /**
              * 加载界面数据
@@ -737,6 +745,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                     wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZJJZ", 0);
                     wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_JZZB", 0);
                     wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_BZ", "");
+                    wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDJZQD_ZHJZ", 0);
                 }
             },
 
@@ -823,6 +832,7 @@ gsp.module("gsp.app").controller("GDWebDevaluePrepareController", "CardControlle
                 wzself.SetColumnDecn(GDWebBizHandleConstants.DevalueCardYTJZID, jedecn);
                 wzself.SetColumnDecn(GDWebBizHandleConstants.DevalueCardLJJZID, jedecn);
                 wzself.SetColumnDecn(GDWebBizHandleConstants.DevalueCardJZZBID, jedecn);
+                wzself.SetColumnDecn(GDWebBizHandleConstants.DevalueCardZHJZID, jedecn);
             },
             /**
              * 获取并设置核算单位帮助条件以及帮助后事件（异步）

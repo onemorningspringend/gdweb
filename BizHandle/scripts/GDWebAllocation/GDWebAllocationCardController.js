@@ -261,6 +261,13 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     })
                 }
             },
+            PrintCard: function() {
+                var cardSelf = this;
+                var modelID = cardSelf.defaultModel().dataModelID;
+                var dataID = cardSelf.dataSourceHelper.getPrimaryValue(this.cardInstance());
+                cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [dataID, modelID, "", "", ""] });
+                //cardSelf.context.invoke({ target: 'PrintController', methodName: 'printCard', params: [tempdataID[1], modelID, "", "", ""] });
+            },
             /** 
              * 给共享中心使用的删除方法
              */
@@ -480,7 +487,12 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                     wzself.cardInstance().dataSource.tables(0).rows(0).setValue("GDZCDB_DRDWBH_LSBZDW_DWMC", importUnitName);
                     return wzself.GetGDParams(curYear, importUnit, curDate).then(function() {
                         if (dwGslb == "2") {
-                            $.messager.alert('提示', "[" + importUnitName + "[为法人单位，不能调入资产！", 'warning');
+                            $.messager.alert('提示', "[" + importUnitName + "]为法人单位，不能调入资产！", 'warning');
+                            return;
+                        }
+                        if (sfCswc == "0") {
+                            $.messager.alert('提示', "[" + importUnitName + "]单位未初始完成，不能进行调拨！", 'warning');
+                            return;
                         }
                         //var param = parseUrlParams(window.location);
                         var dlqj = curDate.substring(4, 6);
@@ -488,6 +500,7 @@ gsp.module("gsp.app").controller("GDWebAllocationCardController", "CardControlle
                             wzself.BindDepartSmartHelp();
                         } else {
                             $.messager.alert('提示', "[" + importUnitName + "]单位的固定资产期间非当前登录期间，请检查！", 'warning');
+                            return;
                         }
                     })
                 })
